@@ -1,0 +1,53 @@
+[
+  {
+    "buildingId": "demo-school-hyderabad",
+    "name": "Green Valley School",
+    "type": "school",
+    "location": "Hyderabad",
+    "latitude": 17.385,
+    "longitude": 78.4867,
+    "occupancy": 350,
+    "operatingHours": 9,
+    "roofType": "concrete",
+    "roofCondition": "fair",
+    "shadeCoverage": 25,
+    "greenCoverage": 15,
+    "ventilation": "medium",
+    "waterAccess": "poor",
+    "reliefSpace": "limited"
+  },
+  {
+    "buildingId": "demo-hospital-chennai",
+    "name": "City Primary Hospital",
+    "type": "hospital",
+    "location": "Chennai",
+    "latitude": 13.0827,
+    "longitude": 80.2707,
+    "occupancy": 200,
+    "operatingHours": 24,
+    "roofType": "concrete",
+    "roofCondition": "poor",
+    "shadeCoverage": 20,
+    "greenCoverage": 5,
+    "ventilation": "good",
+    "waterAccess": "adequate",
+    "reliefSpace": "limited"
+  },
+  {
+    "buildingId": "demo-apartment-delhi",
+    "name": "Sunrise Apartments",
+    "type": "apartment",
+    "location": "Delhi",
+    "latitude": 28.7041,
+    "longitude": 77.1025,
+    "occupancy": 120,
+    "operatingHours": 24,
+    "roofType": "metal",
+    "roofCondition": "poor",
+    "shadeCoverage": 5,
+    "greenCoverage": 3,
+    "ventilation": "poor",
+    "waterAccess": "adequate",
+    "reliefSpace": "none"
+  }
+]

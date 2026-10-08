@@ -1,0 +1,36 @@
+{
+  "name": "heatcredit",
+  "version": "1.0.0",
+  "description": "Heat Resilience Decision Engine — HeatCredit hackathon project",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "test:scoring": "npx ts-node --project tsconfig.test.json tests/scoring/scoring.test.ts",
+    "test:optimizer": "npx ts-node --project tsconfig.test.json tests/optimizer/optimizer.test.ts",
+    "test": "npm run test:scoring && npm run test:optimizer",
+    "test:api:local": "bash tests/api/test-api.sh http://localhost:3001",
+    "test:api:deployed": "bash tests/api/test-api.sh",
+    "build": "sam build",
+    "deploy": "sam deploy",
+    "deploy:guided": "sam deploy --guided",
+    "local:api": "sam local start-api --port 3001",
+    "invoke:health": "sam local invoke HealthFunction --event events/health.json",
+    "invoke:assessment": "sam local invoke AssessmentFunction --event events/assessment-school.json",
+    "invoke:optimize": "sam local invoke OptimizationFunction --event events/optimize.json",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "logs:assessment": "sam logs --name AssessmentFunction --stack-name heatcredit-prod --tail",
+    "logs:optimization": "sam logs --name OptimizationFunction --stack-name heatcredit-prod --tail"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/lib-dynamodb": "^3.600.0"
+  }
+}

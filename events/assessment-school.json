@@ -1,0 +1,24 @@
+{
+  "body": "{\"buildingType\":\"school\",\"location\":\"Hyderabad\",\"latitude\":17.385,\"longitude\":78.4867,\"occupancy\":350,\"operatingHours\":9,\"roofType\":\"concrete\",\"roofCondition\":\"fair\",\"shadeCoverage\":25,\"greenCoverage\":15,\"ventilation\":\"medium\",\"waterAccess\":\"poor\",\"reliefSpace\":\"limited\"}",
+  "resource": "/assessments",
+  "path": "/assessments",
+  "httpMethod": "POST",
+  "isBase64Encoded": false,
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "multiValueHeaders": {},
+  "requestContext": {
+    "resourceId": "local",
+    "resourcePath": "/assessments",
+    "httpMethod": "POST",
+    "requestId": "local-request-id",
+    "accountId": "123456789012",
+    "stage": "local",
+    "apiId": "local"
+  }
+}

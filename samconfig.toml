@@ -1,0 +1,31 @@
+# samconfig.toml — AWS SAM deployment configuration
+# Generated/edited manually; committed to Git (no secrets here)
+
+version = 0.1
+
+[default]
+[default.global.parameters]
+stack_name = "heatcredit-prod"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+stack_name       = "heatcredit-prod"
+region           = "ap-south-1"
+confirm_changeset = false
+capabilities     = "CAPABILITY_IAM"
+parameter_overrides = "Stage=prod"
+# s3_bucket — set this to your SAM deployment bucket after first run:
+# s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-XXXXXXXXXXXX"
+
+[default.local_start_api.parameters]
+port = 3001
+warm_containers = "EAGER"
+
+[default.local_invoke.parameters]
+# Used by: sam local invoke HealthFunction

@@ -1,0 +1,38 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - npm ci
+
+  pre_build:
+    commands:
+      - echo "Running tests..."
+      - npm test
+      - echo "Installing AWS SAM CLI..."
+      - pip3 install aws-sam-cli
+
+  build:
+    commands:
+      - echo "Building SAM application..."
+      - sam build --use-container=false
+      - echo "Deploying to AWS..."
+      - sam deploy
+          --no-confirm-changeset
+          --no-fail-on-empty-changeset
+          --stack-name heatcredit-prod
+          --s3-bucket $SAM_BUCKET
+          --region $AWS_DEFAULT_REGION
+          --parameter-overrides Stage=prod
+
+  post_build:
+    commands:
+      - echo "Deployment complete."
+      - cat samconfig.toml
+
+artifacts:
+  files:
+    - "**/*"
+  discard-paths: no

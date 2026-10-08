@@ -1,0 +1,377 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: HeatCredit — Heat Resilience Decision Engine (AWS SAM)
+
+# ---------------------------------------------------------------------------
+# Global settings for all Lambda functions
+# ---------------------------------------------------------------------------
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 15
+    MemorySize: 256
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+        ASSESSMENTS_TABLE: !Ref AssessmentsTable
+        RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+        BUILDINGS_TABLE: !Ref BuildingsTable
+        NODE_ENV: production
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+      AllowOrigin: "'*'"
+
+# ---------------------------------------------------------------------------
+# Parameters
+# ---------------------------------------------------------------------------
+Parameters:
+  Stage:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+
+# ---------------------------------------------------------------------------
+# Resources
+# ---------------------------------------------------------------------------
+Resources:
+
+  # -----------------------------------------------------------------------
+  # API Gateway
+  # -----------------------------------------------------------------------
+  HeatCreditApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "heatcredit-api-${Stage}"
+      StageName: !Ref Stage
+      Description: HeatCredit Heat Resilience Decision Engine API
+      TracingEnabled: true
+      AccessLogSetting:
+        DestinationArn: !GetAtt ApiAccessLogGroup.Arn
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","responseLength":"$context.responseLength","integrationLatency":"$context.integrationLatency"}'
+
+  # -----------------------------------------------------------------------
+  # DynamoDB Tables
+  # -----------------------------------------------------------------------
+  BuildingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "HeatCreditBuildings-${Stage}"
+      BillingMode: PAY_PER_REQUEST
+      TableClass: STANDARD
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+      AttributeDefinitions:
+        - AttributeName: buildingId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: buildingId
+          KeyType: HASH
+      Tags:
+        - Key: Project
+          Value: HeatCredit
+        - Key: Stage
+          Value: !Ref Stage
+
+  AssessmentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "HeatCreditAssessments-${Stage}"
+      BillingMode: PAY_PER_REQUEST
+      TableClass: STANDARD
+      AttributeDefinitions:
+        - AttributeName: assessmentId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: assessmentId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: HeatCredit
+        - Key: Stage
+          Value: !Ref Stage
+
+  RecommendationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "HeatCreditRecommendations-${Stage}"
+      BillingMode: PAY_PER_REQUEST
+      TableClass: STANDARD
+      AttributeDefinitions:
+        - AttributeName: recommendationId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: recommendationId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: HeatCredit
+        - Key: Stage
+          Value: !Ref Stage
+
+  # -----------------------------------------------------------------------
+  # Lambda: GET /health
+  # -----------------------------------------------------------------------
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-health-${Stage}"
+      Handler: dist/backend/functions/health/index.handler
+      Description: HeatCredit liveness check
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        HealthGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /health
+            Method: GET
+        HealthOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /health
+            Method: OPTIONS
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/health/index.ts
+
+  # -----------------------------------------------------------------------
+  # Lambda: GET /interventions
+  # -----------------------------------------------------------------------
+  InterventionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-interventions-${Stage}"
+      Handler: dist/backend/functions/interventions/index.handler
+      Description: Returns the intervention catalogue
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        InterventionsGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /interventions
+            Method: GET
+        InterventionsOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /interventions
+            Method: OPTIONS
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/interventions/index.ts
+
+  # -----------------------------------------------------------------------
+  # Lambda: GET /weather
+  # -----------------------------------------------------------------------
+  WeatherFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-weather-${Stage}"
+      Handler: dist/backend/functions/weather/index.handler
+      Description: Open-Meteo proxy with fallback
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        WeatherGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /weather
+            Method: GET
+        WeatherOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /weather
+            Method: OPTIONS
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/weather/index.ts
+
+  # -----------------------------------------------------------------------
+  # Lambda: POST /assessments
+  # -----------------------------------------------------------------------
+  AssessmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-assessment-${Stage}"
+      Handler: dist/backend/functions/assessment/index.handler
+      Description: Scores a building assessment and persists to DynamoDB
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AssessmentsTable
+      Events:
+        AssessmentPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /assessments
+            Method: POST
+        AssessmentOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /assessments
+            Method: OPTIONS
+        AssessmentGetById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /assessments/{id}
+            Method: GET
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/assessment/index.ts
+
+  # -----------------------------------------------------------------------
+  # Lambda: POST /optimize
+  # -----------------------------------------------------------------------
+  OptimizationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-optimization-${Stage}"
+      Handler: dist/backend/functions/optimization/index.handler
+      Description: Budget optimizer using 0/1 knapsack
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref AssessmentsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RecommendationsTable
+      Events:
+        OptimizePost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /optimize
+            Method: POST
+        OptimizeOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /optimize
+            Method: OPTIONS
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/optimization/index.ts
+
+  # -----------------------------------------------------------------------
+  # CloudWatch — Log groups with 7-day retention (cost control)
+  # -----------------------------------------------------------------------
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/apigateway/heatcredit-${Stage}"
+      RetentionInDays: 7
+
+  HealthFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-health-${Stage}"
+      RetentionInDays: 7
+
+  InterventionsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-interventions-${Stage}"
+      RetentionInDays: 7
+
+  WeatherFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-weather-${Stage}"
+      RetentionInDays: 7
+
+  AssessmentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-assessment-${Stage}"
+      RetentionInDays: 7
+
+  OptimizationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-optimization-${Stage}"
+      RetentionInDays: 7
+
+  # -----------------------------------------------------------------------
+  # CloudWatch — Error alarm (5 Lambda errors in 5 minutes)
+  # -----------------------------------------------------------------------
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "heatcredit-lambda-errors-${Stage}"
+      AlarmDescription: "HeatCredit Lambda error rate exceeded threshold"
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+# ---------------------------------------------------------------------------
+# Outputs — printed after sam deploy, used in .env and Amplify config
+# ---------------------------------------------------------------------------
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${HeatCreditApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+    Export:
+      Name: !Sub "HeatCreditApiUrl-${Stage}"
+
+  AssessmentsTableName:
+    Description: "DynamoDB Assessments table name"
+    Value: !Ref AssessmentsTable
+
+  RecommendationsTableName:
+    Description: "DynamoDB Recommendations table name"
+    Value: !Ref RecommendationsTable
+
+  BuildingsTableName:
+    Description: "DynamoDB Buildings table name"
+    Value: !Ref BuildingsTable
+
+  Region:
+    Description: "AWS Region"
+    Value: !Ref AWS::Region

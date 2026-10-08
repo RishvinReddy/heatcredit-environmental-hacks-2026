@@ -1,0 +1,25 @@
+{
+  "body": null,
+  "resource": "/health",
+  "path": "/health",
+  "httpMethod": "GET",
+  "isBase64Encoded": false,
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "multiValueHeaders": {},
+  "requestContext": {
+    "resourceId": "local",
+    "resourcePath": "/health",
+    "httpMethod": "GET",
+    "requestId": "local-request-id",
+    "accountId": "123456789012",
+    "stage": "local",
+    "apiId": "local"
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "shade",
+    "name": "Shade Structure",
+    "category": "shade",
+    "description": "Install shade structures (pergolas, canopies, or shade sails) over key outdoor areas such as entrances, courtyards, and play areas to reduce direct solar exposure.",
+    "estimatedCost": 25000,
+    "impact": 11,
+    "targetDimension": "shade",
+    "constraints": [],
+    "notes": "Prototype planning value. Actual cost depends on materials, area covered, and local labour rates."
+  },
+  {
+    "id": "water",
+    "name": "Drinking Water Station",
+    "category": "water",
+    "description": "Install a dedicated drinking water station with chilled or ambient water access to support hydration during peak heat hours.",
+    "estimatedCost": 8000,
+    "impact": 6,
+    "targetDimension": "waterAccess",
+    "constraints": [],
+    "notes": "Prototype planning value. Actual cost depends on plumbing availability and unit specification."
+  },
+  {
+    "id": "ventilation",
+    "name": "Ventilation Improvement",
+    "category": "ventilation",
+    "description": "Upgrade ventilation through installation of ceiling fans, cross-ventilation openings, or exhaust systems to improve internal airflow and reduce heat build-up.",
+    "estimatedCost": 15000,
+    "impact": 8,
+    "targetDimension": "ventilation",
+    "constraints": [],
+    "notes": "Prototype planning value. Actual cost depends on building layout and existing HVAC infrastructure."
+  },
+  {
+    "id": "green",
+    "name": "Green Coverage",
+    "category": "green",
+    "description": "Increase vegetative coverage through tree planting, vertical gardens, or ground-level landscaping to reduce ambient temperature through evapotranspiration.",
+    "estimatedCost": 20000,
+    "impact": 7,
+    "targetDimension": "greenCoverage",
+    "constraints": [],
+    "notes": "Prototype planning value. Full cooling benefit realised over multiple seasons as vegetation matures."
+  },
+  {
+    "id": "roof",
+    "name": "Reflective Roof Treatment",
+    "category": "thermal",
+    "description": "Apply cool-roof coating or install reflective roofing material to reduce solar heat absorption and lower indoor temperature.",
+    "estimatedCost": 18000,
+    "impact": 9,
+    "targetDimension": "roofCondition",
+    "constraints": [],
+    "notes": "Prototype planning value. Effectiveness depends on roof area, existing material, and coating type."
+  },
+  {
+    "id": "relief",
+    "name": "Heat Relief Room",
+    "category": "relief",
+    "description": "Establish a dedicated air-conditioned or fan-cooled relief space where occupants can recover from heat exposure during peak temperature hours.",
+    "estimatedCost": 50000,
+    "impact": 14,
+    "targetDimension": "reliefSpace",
+    "constraints": [],
+    "notes": "Prototype planning value. Highest-impact single intervention. Ongoing electricity costs apply."
+  }
+]

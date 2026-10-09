@@ -20,8 +20,7 @@ region           = "ap-south-1"
 confirm_changeset = false
 capabilities     = "CAPABILITY_IAM"
 parameter_overrides = "Stage=prod"
-# s3_bucket — set this to your SAM deployment bucket after first run:
-# s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-XXXXXXXXXXXX"
+s3_bucket        = "aws-sam-cli-managed-default-samclisourcebucket-f1pcsn1y9qao"
 
 [default.local_start_api.parameters]
 port = 3001

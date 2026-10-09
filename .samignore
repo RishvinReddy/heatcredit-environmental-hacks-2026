@@ -1,0 +1,8 @@
+node_modules
+.next
+apps
+tests
+.git
+.aws-sam
+README.md
+docs

@@ -14,6 +14,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { scoreBuilding } from "../../lib/scoring/scoring";
 import { validateAssessmentInput } from "../../lib/validation/validation";
+import { getWeather } from "../../lib/weather/weather";
 import type { BuildingInput } from "../../lib/scoring/scoring";
 
 // ---------------------------------------------------------------------------
@@ -114,8 +115,14 @@ export async function handler(
 
   const input = body as BuildingInput;
 
-  // Score
-  const result = scoreBuilding(input);
+  // Score + fetch weather snapshot concurrently
+  const [result, { weather: weatherSnapshot }] = await Promise.all([
+    Promise.resolve(scoreBuilding(input)),
+    (input.latitude && input.longitude)
+      ? getWeather(input.latitude, input.longitude)
+      : Promise.resolve({ weather: null, source: "none" as const }),
+  ]);
+
   const assessmentId = generateAssessmentId();
   const createdAt = new Date().toISOString();
 
@@ -140,6 +147,8 @@ export async function handler(
     breakdown: result.breakdown,
     vulnerabilities: result.vulnerabilities,
     topVulnerability: result.topVulnerability,
+    // Weather snapshot captured at assessment creation time
+    weatherSnapshot: weatherSnapshot ?? null,
   };
 
   // Persist
@@ -163,6 +172,7 @@ export async function handler(
         breakdown: result.breakdown,
         vulnerabilities: result.vulnerabilities,
         topVulnerability: result.topVulnerability,
+        weatherSnapshot: weatherSnapshot ?? null,
         createdAt,
         warning: "Assessment scored but could not be persisted.",
       }),
@@ -179,6 +189,7 @@ export async function handler(
       breakdown: result.breakdown,
       vulnerabilities: result.vulnerabilities,
       topVulnerability: result.topVulnerability,
+      weatherSnapshot: weatherSnapshot ?? null,
       createdAt,
     }),
   };

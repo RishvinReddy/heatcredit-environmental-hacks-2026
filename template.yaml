@@ -51,10 +51,6 @@ Resources:
       Name: !Sub "heatcredit-api-${Stage}"
       StageName: !Ref Stage
       Description: HeatCredit Heat Resilience Decision Engine API
-      TracingEnabled: true
-      AccessLogSetting:
-        DestinationArn: !GetAtt ApiAccessLogGroup.Arn
-        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","responseLength":"$context.responseLength","integrationLatency":"$context.integrationLatency"}'
 
   # -----------------------------------------------------------------------
   # DynamoDB Tables
@@ -128,7 +124,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "heatcredit-health-${Stage}"
-      Handler: dist/backend/functions/health/index.handler
+      Handler: index.handler
       Description: HeatCredit liveness check
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -160,7 +156,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "heatcredit-interventions-${Stage}"
-      Handler: dist/backend/functions/interventions/index.handler
+      Handler: index.handler
       Description: Returns the intervention catalogue
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -192,7 +188,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "heatcredit-weather-${Stage}"
-      Handler: dist/backend/functions/weather/index.handler
+      Handler: index.handler
       Description: Open-Meteo proxy with fallback
       Timeout: 10
       Policies:
@@ -225,7 +221,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "heatcredit-assessment-${Stage}"
-      Handler: dist/backend/functions/assessment/index.handler
+      Handler: index.handler
       Description: Scores a building assessment and persists to DynamoDB
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -265,7 +261,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "heatcredit-optimization-${Stage}"
-      Handler: dist/backend/functions/optimization/index.handler
+      Handler: index.handler
       Description: Budget optimizer using 0/1 knapsack
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -297,12 +293,6 @@ Resources:
   # -----------------------------------------------------------------------
   # CloudWatch — Log groups with 7-day retention (cost control)
   # -----------------------------------------------------------------------
-  ApiAccessLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/apigateway/heatcredit-${Stage}"
-      RetentionInDays: 7
-
   HealthFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

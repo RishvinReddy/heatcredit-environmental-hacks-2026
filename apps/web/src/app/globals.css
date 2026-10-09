@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Custom Risk Colors */
+  --color-risk-low: var(--risk-low);
+  --color-risk-moderate: var(--risk-moderate);
+  --color-risk-high: var(--risk-high);
+  --color-risk-critical: var(--risk-critical);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  /* Premium Off-White Canvas */
+  --background: oklch(0.98 0.005 90); 
+  /* Deep Graphite */
+  --foreground: oklch(0.2 0.01 250);
+  
+  /* Pure White Cards */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.01 250);
+  
+  /* Restrained Emerald Accent */
+  --primary: oklch(0.5 0.1 160);
+  --primary-foreground: oklch(0.98 0 0);
+  
+  /* Muted subtle grays */
+  --muted: oklch(0.96 0.005 90);
+  --muted-foreground: oklch(0.5 0.01 250);
+  
+  /* Borders and Rings */
+  --border: oklch(0.92 0.005 90);
+  --input: oklch(0.92 0.005 90);
+  --ring: oklch(0.5 0.1 160);
+  
+  /* Risk Indicators */
+  --risk-low: oklch(0.6 0.12 160);       /* Emerald */
+  --risk-moderate: oklch(0.7 0.15 60);  /* Amber */
+  --risk-high: oklch(0.6 0.18 35);      /* Orange-Red */
+  --risk-critical: oklch(0.5 0.2 25);   /* Deep Red */
+
+  --destructive: var(--risk-high);
+  --destructive-foreground: oklch(0.98 0 0);
+  
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+  }
+}

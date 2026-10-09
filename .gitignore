@@ -19,6 +19,7 @@ build/
 
 # AWS
 .aws/
+.aws-sam/
 cdk.out/
 cdk.context.json
 

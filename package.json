@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Heat Resilience Decision Engine — HeatCredit hackathon project",
   "private": true,
-  "workspaces": [
-    "apps/web"
-  ],
   "scripts": {
     "test:scoring": "npx ts-node --project tsconfig.test.json tests/scoring/scoring.test.ts",
     "test:optimizer": "npx ts-node --project tsconfig.test.json tests/optimizer/optimizer.test.ts",
@@ -19,13 +16,14 @@
     "invoke:health": "sam local invoke HealthFunction --event events/health.json",
     "invoke:assessment": "sam local invoke AssessmentFunction --event events/assessment-school.json",
     "invoke:optimize": "sam local invoke OptimizationFunction --event events/optimize.json",
-    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:web": "cd apps/web && npm run dev",
     "logs:assessment": "sam logs --name AssessmentFunction --stack-name heatcredit-prod --tail",
     "logs:optimization": "sam logs --name OptimizationFunction --stack-name heatcredit-prod --tail"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
     "@types/node": "^20.0.0",
+    "esbuild": "^0.28.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },

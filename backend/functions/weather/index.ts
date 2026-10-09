@@ -46,13 +46,22 @@ export async function handler(
     };
   }
 
-  const { weather, source } = await getWeather(lat, lon);
+  const weather = await getWeather(lat, lon);
+
+  if (weather.dataQuality === "unavailable") {
+    return {
+      statusCode: 503,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Weather data currently unavailable." }),
+    };
+  }
 
   return {
     statusCode: 200,
     headers: {
       ...CORS_HEADERS,
-      ...(source === "fallback" ? { "X-Weather-Source": "fallback-demo" } : {}),
+      "Cache-Control": "max-age=0, no-cache, no-store, must-revalidate",
+      ...(weather.dataQuality === "demo" ? { "X-Weather-Source": "fallback-demo" } : {}),
     },
     body: JSON.stringify(weather),
   };

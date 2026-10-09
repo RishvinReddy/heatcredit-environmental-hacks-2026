@@ -116,11 +116,11 @@ export async function handler(
   const input = body as BuildingInput;
 
   // Score + fetch weather snapshot concurrently
-  const [result, { weather: weatherSnapshot }] = await Promise.all([
+  const [result, weatherSnapshot] = await Promise.all([
     Promise.resolve(scoreBuilding(input)),
-    (input.latitude && input.longitude)
+    (input.latitude !== undefined && input.longitude !== undefined)
       ? getWeather(input.latitude, input.longitude)
-      : Promise.resolve({ weather: null, source: "none" as const }),
+      : Promise.resolve(null),
   ]);
 
   const assessmentId = generateAssessmentId();

@@ -29,10 +29,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
     { name: "OVERVIEW", href: "/overview", icon: LayoutDashboard },
     { name: "ASSESSMENTS", href: "/assessment", icon: FileText },
     { name: "INTELLIGENCE", href: "/intelligence", icon: Activity },
-    { name: "INTERVENTIONS", href: "/lab", icon: Beaker },
-    { name: "OPTIMIZER", href: "/optimizer/demo-id", icon: ShieldCheck },
+    { name: "INTERVENTIONS", href: "/interventions", icon: Beaker },
+    { name: "OPTIMIZER", href: "/optimizer", icon: ShieldCheck },
     { name: "SCENARIOS", href: "/scenarios", icon: FileSpreadsheet },
-    { name: "REPORTS", href: "/reports", icon: Map },
+    { name: "REPORTS", href: "/report", icon: Map },
   ];
 
   const secondaryNav = [

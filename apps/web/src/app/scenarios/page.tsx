@@ -1,11 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { getAssessment, optimizeBudget } from "@/lib/api";
-import { ShieldCheck, Activity, BarChart2, Zap } from "lucide-react";
+import { ShieldCheck, Activity, BarChart2, Zap, FileText, FileSpreadsheet } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function ScenariosPage() {
+  return (
+    <Suspense fallback={<div className="flex h-full items-center justify-center font-mono text-sm animate-pulse text-muted-foreground">INITIALIZING...</div>}>
+      <ScenariosContent />
+    </Suspense>
+  );
+}
+
+function ScenariosContent() {
+  const searchParams = useSearchParams();
+  const assessmentId = searchParams.get("assessmentId");
+
   const [assessment, setAssessment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,8 +37,12 @@ export default function ScenariosPage() {
 
   useEffect(() => {
     async function load() {
+      if (!assessmentId) {
+        setLoading(false);
+        return;
+      }
       try {
-        const data = await getAssessment("demo-id"); // Hardcoded for demo/scenarios
+        const data = await getAssessment(assessmentId);
         setAssessment(data);
       } catch (err) {
         console.error(err);
@@ -34,16 +51,16 @@ export default function ScenariosPage() {
       }
     }
     load();
-  }, []);
+  }, [assessmentId]);
 
   useEffect(() => {
     async function runScenarios() {
-      if (!assessment) return;
+      if (!assessment || !assessmentId) return;
       try {
         const [base, bal, agg] = await Promise.all([
-          optimizeBudget("demo-id", budgets.baseline),
-          optimizeBudget("demo-id", budgets.balanced),
-          optimizeBudget("demo-id", budgets.aggressive)
+          optimizeBudget(assessmentId, budgets.baseline),
+          optimizeBudget(assessmentId, budgets.balanced),
+          optimizeBudget(assessmentId, budgets.aggressive)
         ]);
         setResults({ baseline: base, balanced: bal, aggressive: agg });
       } catch (err) {
@@ -51,13 +68,52 @@ export default function ScenariosPage() {
       }
     }
     runScenarios();
-  }, [assessment, budgets]);
+  }, [assessment, budgets, assessmentId]);
 
-  if (loading || !assessment) return <div className="flex h-full items-center justify-center font-mono text-sm animate-pulse text-muted-foreground">INITIALIZING SCENARIO STUDIO...</div>;
+  if (!assessmentId) {
+    return (
+      <div className="flex-1 flex flex-col p-6 md:p-10 max-w-7xl mx-auto w-full h-full items-center justify-center">
+        <div className="bg-background border border-border/40 rounded-xl p-8 max-w-md text-center shadow-sm">
+          <div className="mx-auto w-12 h-12 bg-primary/10 flex items-center justify-center rounded-full mb-4">
+            <FileSpreadsheet className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight mb-2">Scenario Studio</h1>
+          <p className="text-muted-foreground text-sm mb-6">
+            Scenario analysis requires an active assessment context to project capital allocations.
+          </p>
+          <Link
+            href="/assessment"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <FileText className="h-4 w-4" /> Go to Assessments
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) return <div className="flex h-full items-center justify-center font-mono text-sm animate-pulse text-muted-foreground">INITIALIZING SCENARIO STUDIO...</div>;
+
+  if (!assessment) return (
+    <div className="flex-1 flex flex-col p-6 md:p-10 max-w-7xl mx-auto w-full h-full items-center justify-center">
+      <div className="bg-background border border-destructive/40 rounded-xl p-8 max-w-md text-center shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight mb-2 text-destructive">Assessment Not Found</h1>
+        <p className="text-muted-foreground text-sm mb-6">
+          The requested assessment context could not be loaded. It may have expired or the ID is invalid.
+        </p>
+        <Link
+          href="/assessment"
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          <FileText className="h-4 w-4" /> Start New Assessment
+        </Link>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex-1 flex flex-col p-6 md:p-10 max-w-7xl mx-auto w-full h-full overflow-y-auto">
-      
+
       <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Scenario Studio</h1>
@@ -70,30 +126,30 @@ export default function ScenariosPage() {
 
       <div className="grid lg:grid-cols-3 gap-6 mb-12">
         {/* BASELINE SCENARIO */}
-        <ScenarioCard 
-          title="Baseline (Do Nothing)" 
-          budget={budgets.baseline} 
-          setBudget={(val: number) => setBudgets(b => ({ ...b, baseline: val }))} 
-          data={results.baseline} 
+        <ScenarioCard
+          title="Baseline (Do Nothing)"
+          budget={budgets.baseline}
+          setBudget={(val: number) => setBudgets(b => ({ ...b, baseline: val }))}
+          data={results.baseline}
           baseScore={assessment.score}
           isBaseline
         />
-        
+
         {/* BALANCED SCENARIO */}
-        <ScenarioCard 
-          title="Balanced Investment" 
-          budget={budgets.balanced} 
-          setBudget={(val: number) => setBudgets(b => ({ ...b, balanced: val }))} 
-          data={results.balanced} 
+        <ScenarioCard
+          title="Balanced Investment"
+          budget={budgets.balanced}
+          setBudget={(val: number) => setBudgets(b => ({ ...b, balanced: val }))}
+          data={results.balanced}
           baseScore={assessment.score}
         />
 
         {/* AGGRESSIVE SCENARIO */}
-        <ScenarioCard 
-          title="Aggressive Resilience" 
-          budget={budgets.aggressive} 
-          setBudget={(val: number) => setBudgets(b => ({ ...b, aggressive: val }))} 
-          data={results.aggressive} 
+        <ScenarioCard
+          title="Aggressive Resilience"
+          budget={budgets.aggressive}
+          setBudget={(val: number) => setBudgets(b => ({ ...b, aggressive: val }))}
+          data={results.aggressive}
           baseScore={assessment.score}
           isAggressive
         />
@@ -154,14 +210,14 @@ export default function ScenariosPage() {
 function ScenarioCard({ title, budget, setBudget, data, baseScore, isBaseline, isAggressive }: any) {
   const improvement = data ? data.projectedScore - baseScore : 0;
   const utilized = data ? data.totalCost : 0;
-  
+
   return (
     <div className={`bg-background border rounded-xl p-6 shadow-sm flex flex-col ${isAggressive ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border/40'}`}>
       <div className="flex justify-between items-start mb-6">
         <div className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">{title}</div>
         {isAggressive && <Zap className="h-4 w-4 text-primary" />}
       </div>
-      
+
       {!isBaseline && (
         <div className="mb-6">
           <div className="flex justify-between items-end mb-2">

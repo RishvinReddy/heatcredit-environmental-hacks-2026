@@ -86,6 +86,9 @@ function ResultsContent() {
             </div>
           </div>
           <div className="flex gap-4">
+            <Button variant="outline" size="lg" className="h-12 shadow-sm rounded-full font-bold group" onClick={() => router.push(`/scenarios?assessmentId=${id}`)}>
+              Scenario Studio
+            </Button>
             <Button size="lg" className="h-12 shadow-md rounded-full font-bold group" onClick={() => router.push(`/optimizer/${id}`)}>
               Run Budget Optimization <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>

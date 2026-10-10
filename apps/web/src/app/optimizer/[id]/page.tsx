@@ -31,7 +31,7 @@ function OptimizerContent() {
       try {
         const data = await getAssessment(id);
         setAssessment(data);
-        
+
         const opt = await optimizeBudget(id, budget);
         setOptData(opt);
 
@@ -52,7 +52,22 @@ function OptimizerContent() {
   }, [id, budget]); // Re-run optimization when budget changes
 
   if (loading && !assessment) return <div className="flex h-screen items-center justify-center font-mono text-sm animate-pulse">INITIALIZING OPTIMIZER ENGINE...</div>;
-  if (!assessment) return <div className="p-10 text-destructive font-mono">ERROR: Assessment context lost.</div>;
+  if (!assessment) return (
+    <div className="flex h-full items-center justify-center p-10">
+      <div className="bg-background border border-destructive/40 rounded-xl p-8 max-w-md text-center shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight mb-2 text-destructive">Assessment Context Lost</h1>
+        <p className="text-muted-foreground text-sm mb-6">
+          The requested assessment could not be found. It may have expired or the ID is invalid.
+        </p>
+        <button
+          onClick={() => window.location.href = "/assessment"}
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Start New Assessment
+        </button>
+      </div>
+    </div>
+  );
 
   const improvement = optData ? optData.projectedScore - assessment.score : 0;
   const efficiency = optData && improvement > 0 ? (optData.totalCost / improvement).toFixed(0) : "N/A";
@@ -60,7 +75,7 @@ function OptimizerContent() {
   return (
     <div className="flex h-full w-full">
       <div className="flex-1 flex flex-col p-6 md:p-10 max-w-7xl mx-auto w-full h-full overflow-y-auto">
-        
+
         <header className="mb-10">
           <div className="flex items-center gap-2 text-primary font-bold text-[10px] tracking-widest uppercase mb-2">
             <Cpu className="h-3 w-3" /> 0/1 Knapsack Algorithm
@@ -70,14 +85,14 @@ function OptimizerContent() {
         </header>
 
         <div className="grid lg:grid-cols-12 gap-8 mb-8">
-          
+
           {/* LEFT: BUDGET CONTROL & KPI */}
           <div className="lg:col-span-5 space-y-8">
             <div className="bg-background border border-border/40 rounded-xl p-8 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10"><Layers className="h-24 w-24" /></div>
-              
+
               <div className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-6">Simulation Constraint</div>
-              
+
               <div className="flex justify-between items-end mb-4">
                 <span className="text-xs font-semibold uppercase text-muted-foreground">Authorized Budget</span>
                 <span className="text-4xl font-bold font-mono tracking-tighter">₹{budget.toLocaleString()}</span>
@@ -121,22 +136,22 @@ function OptimizerContent() {
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={frontier} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                    <XAxis 
-                      dataKey="budget" 
-                      tickFormatter={(val) => `₹${val/1000}k`} 
-                      stroke="var(--color-muted-foreground)" 
-                      fontSize={10} 
-                      tickLine={false} 
-                      axisLine={false} 
+                    <XAxis
+                      dataKey="budget"
+                      tickFormatter={(val) => `₹${val/1000}k`}
+                      stroke="var(--color-muted-foreground)"
+                      fontSize={10}
+                      tickLine={false}
+                      axisLine={false}
                     />
-                    <YAxis 
-                      domain={['dataMin - 10', 100]} 
-                      stroke="var(--color-muted-foreground)" 
-                      fontSize={10} 
-                      tickLine={false} 
-                      axisLine={false} 
+                    <YAxis
+                      domain={['dataMin - 10', 100]}
+                      stroke="var(--color-muted-foreground)"
+                      fontSize={10}
+                      tickLine={false}
+                      axisLine={false}
                     />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(val: any) => [`${val} pts`, "Max Score"]}
                       labelFormatter={(label: any) => `Budget: ₹${Number(label || 0).toLocaleString()}`}
                       contentStyle={{ backgroundColor: "var(--color-background)", borderRadius: "8px", border: "1px solid var(--color-border)" }}
@@ -160,7 +175,7 @@ function OptimizerContent() {
               This specific combination of interventions was selected because it mathematically maximizes resilience improvement (+{improvement} pts) while strictly remaining within the ₹{budget.toLocaleString()} capital constraint. Any other combination would either exceed the budget or yield a lower total score.
             </p>
           </div>
-          
+
           <div className="lg:col-span-2">
             <div className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-4">Authorized Interventions</div>
             {loading && !optData ? (

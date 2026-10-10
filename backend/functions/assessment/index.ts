@@ -1,8 +1,8 @@
 /**
- * HeatCredit — /assessments Lambda
+ * HeatCredit ΓÇö /assessments Lambda
  *
- * POST /assessments    — Score a building, persist and return result.
- * GET  /assessments/:id — Retrieve a previously scored assessment.
+ * POST /assessments    ΓÇö Score a building, persist and return result.
+ * GET  /assessments/:id ΓÇö Retrieve a previously scored assessment.
  */
 
 import {
@@ -16,9 +16,11 @@ import { scoreBuilding } from "../../lib/scoring/scoring";
 import { validateAssessmentInput } from "../../lib/validation/validation";
 import { getWeather } from "../../lib/weather/weather";
 import type { BuildingInput } from "../../lib/scoring/scoring";
+import { calculateEvidenceCompleteness } from "../../lib/data-quality/building-evidence";
+import type { EvidenceRecord } from "../../lib/data-quality/building-evidence";
 
 // ---------------------------------------------------------------------------
-// DynamoDB client (singleton — reused across warm Lambda invocations)
+// DynamoDB client (singleton ΓÇö reused across warm Lambda invocations)
 // ---------------------------------------------------------------------------
 
 const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION ?? "ap-south-1" });
@@ -60,7 +62,7 @@ export async function handler(
     return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
 
-  // GET /assessments/:id — retrieve a stored assessment
+  // GET /assessments/:id ΓÇö retrieve a stored assessment
   if (event.httpMethod === "GET") {
     const assessmentId = event.pathParameters?.id;
     if (!assessmentId) {
@@ -114,6 +116,10 @@ export async function handler(
   }
 
   const input = body as BuildingInput;
+  const inputWithEv = body as { evidence?: Record<string, unknown> };
+
+  const evidence = (inputWithEv.evidence as Record<string, EvidenceRecord>) ?? null;
+  const evidenceCompleteness = calculateEvidenceCompleteness(evidence);
 
   // Score + fetch weather snapshot concurrently
   const [result, weatherSnapshot] = await Promise.all([
@@ -147,6 +153,8 @@ export async function handler(
     breakdown: result.breakdown,
     vulnerabilities: result.vulnerabilities,
     topVulnerability: result.topVulnerability,
+    evidence,
+    evidenceCompleteness,
     // Weather snapshot captured at assessment creation time
     weatherSnapshot: weatherSnapshot ?? null,
   };
@@ -161,7 +169,7 @@ export async function handler(
     );
   } catch (err) {
     console.error("DynamoDB PutCommand failed:", err);
-    // Return the result even if persistence fails — don't block the demo
+    // Return the result even if persistence fails ΓÇö don't block the demo
     return {
       statusCode: 200,
       headers: { ...CORS_HEADERS, "X-Storage-Warning": "persistence-unavailable" },
@@ -172,6 +180,8 @@ export async function handler(
         breakdown: result.breakdown,
         vulnerabilities: result.vulnerabilities,
         topVulnerability: result.topVulnerability,
+        evidence,
+        evidenceCompleteness,
         weatherSnapshot: weatherSnapshot ?? null,
         createdAt,
         warning: "Assessment scored but could not be persisted.",
@@ -189,6 +199,8 @@ export async function handler(
       breakdown: result.breakdown,
       vulnerabilities: result.vulnerabilities,
       topVulnerability: result.topVulnerability,
+      evidence,
+      evidenceCompleteness,
       weatherSnapshot: weatherSnapshot ?? null,
       createdAt,
     }),

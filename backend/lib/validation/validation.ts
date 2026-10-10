@@ -7,6 +7,7 @@
  */
 
 import type { BuildingInput, RoofType, RoofCondition, VentilationLevel, WaterAccessLevel, ReliefSpaceLevel } from "../scoring/scoring";
+import { validateEvidenceRecord, EVIDENCE_SENSITIVE_FIELDS } from "../data-quality/building-evidence";
 
 // ---------------------------------------------------------------------------
 // Allowed values
@@ -167,6 +168,27 @@ export function validateAssessmentInput(body: unknown): ValidationResult {
     errors.push(
       `reliefSpace must be one of: ${ALLOWED_RELIEF_SPACE.join(", ")}.`
     );
+  }
+
+  // evidence (optional)
+  if (b.evidence !== undefined && b.evidence !== null) {
+    if (typeof b.evidence !== "object" || Array.isArray(b.evidence)) {
+      errors.push("evidence must be a JSON object.");
+    } else {
+      const ev = b.evidence as Record<string, unknown>;
+      // We do not require all sensitive fields to have evidence (missing provenance is allowed)
+      // but if evidence is provided for a field, it must be valid and must be a supported field.
+      for (const [field, record] of Object.entries(ev)) {
+        if (!EVIDENCE_SENSITIVE_FIELDS.includes(field as any)) {
+          errors.push(`Evidence key '${field}' is not a supported evidence field.`);
+          continue;
+        }
+        const { valid: evValid, errors: evErrors } = validateEvidenceRecord(field, record);
+        if (!evValid) {
+          errors.push(...evErrors);
+        }
+      }
+    }
   }
 
   return { valid: errors.length === 0, errors };

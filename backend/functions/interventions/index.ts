@@ -22,7 +22,10 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   return {
     statusCode: 200,
-    headers: CORS_HEADERS,
+    headers: {
+      ...CORS_HEADERS,
+      "Cache-Control": "public, max-age=3600"
+    },
     body: JSON.stringify({
       interventions: interventionsData,
       count: interventionsData.length,

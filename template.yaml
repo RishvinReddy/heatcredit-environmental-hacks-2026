@@ -7,7 +7,7 @@ Description: HeatCredit — Heat Resilience Decision Engine (AWS SAM)
 # ---------------------------------------------------------------------------
 Globals:
   Function:
-    Runtime: nodejs20.x
+    Runtime: nodejs24.x
     Timeout: 15
     MemorySize: 256
     Architectures:
@@ -51,6 +51,31 @@ Resources:
       Name: !Sub "heatcredit-api-${Stage}"
       StageName: !Ref Stage
       Description: HeatCredit Heat Resilience Decision Engine API
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingBurstLimit: 50
+          ThrottlingRateLimit: 100
+
+  GatewayResponseDefault4XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      ResponseType: DEFAULT_4XX
+      RestApiId: !Ref HeatCreditApi
+
+  GatewayResponseDefault5XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      ResponseType: DEFAULT_5XX
+      RestApiId: !Ref HeatCreditApi
 
   # -----------------------------------------------------------------------
   # DynamoDB Tables

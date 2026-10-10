@@ -240,6 +240,39 @@ Resources:
           - backend/functions/weather/index.ts
 
   # -----------------------------------------------------------------------
+  # Lambda: GET /warnings
+  # -----------------------------------------------------------------------
+  WarningsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-warnings-${Stage}"
+      Handler: index.handler
+      Description: Official heat warnings integration
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        WarningsGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /warnings
+            Method: GET
+        WarningsOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /warnings
+            Method: OPTIONS
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/warnings/index.ts
+
+  # -----------------------------------------------------------------------
   # Lambda: POST /assessments
   # -----------------------------------------------------------------------
   AssessmentFunction:
@@ -334,6 +367,12 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "/aws/lambda/heatcredit-weather-${Stage}"
+      RetentionInDays: 7
+
+  WarningsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-warnings-${Stage}"
       RetentionInDays: 7
 
   AssessmentFunctionLogGroup:

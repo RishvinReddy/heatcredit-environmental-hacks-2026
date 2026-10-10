@@ -15,6 +15,7 @@ import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dyn
 import { scoreBuilding } from "../../lib/scoring/scoring";
 import { validateAssessmentInput } from "../../lib/validation/validation";
 import { getWeather } from "../../lib/weather/weather";
+import { getWarnings } from "../../lib/warnings/warnings";
 import type { BuildingInput } from "../../lib/scoring/scoring";
 import { calculateEvidenceCompleteness } from "../../lib/data-quality/building-evidence";
 import type { EvidenceRecord } from "../../lib/data-quality/building-evidence";
@@ -134,11 +135,19 @@ export async function handler(
   const evidence = (inputWithEv.evidence as Record<string, EvidenceRecord>) ?? null;
   const evidenceCompleteness = calculateEvidenceCompleteness(evidence);
 
-  // Score + fetch weather snapshot concurrently
-  const [result, weatherSnapshot] = await Promise.all([
+  // Score + fetch weather and warnings concurrently
+  const [result, weatherSnapshot, warningsSnapshot] = await Promise.all([
     Promise.resolve(scoreBuilding(input)),
     (input.latitude !== undefined && input.longitude !== undefined)
       ? getWeather(input.latitude, input.longitude)
+      : Promise.resolve(null),
+    (input.latitude !== undefined && input.longitude !== undefined)
+      ? getWarnings(input.latitude, input.longitude).catch(() => ({
+          status: "unavailable" as const,
+          checkedAt: new Date().toISOString(),
+          alerts: [],
+          message: "Warning fetch failed in assessment."
+        }))
       : Promise.resolve(null),
   ]);
 
@@ -167,10 +176,13 @@ export async function handler(
     vulnerabilities: result.vulnerabilities,
     topVulnerability: result.topVulnerability,
     modelMetadata: result.modelMetadata,
+    // Evidence provenance
     evidence,
     evidenceCompleteness,
     // Weather snapshot captured at assessment creation time
     weatherSnapshot: weatherSnapshot ?? null,
+    // Warning snapshot captured at assessment creation time
+    warningsSnapshot: warningsSnapshot ?? null,
   };
 
   // Persist
@@ -198,6 +210,7 @@ export async function handler(
         evidence,
         evidenceCompleteness,
         weatherSnapshot: weatherSnapshot ?? null,
+        warningsSnapshot: warningsSnapshot ?? null,
         createdAt,
         warning: "Assessment scored but could not be persisted.",
       }),
@@ -218,6 +231,7 @@ export async function handler(
       evidence,
       evidenceCompleteness,
       weatherSnapshot: weatherSnapshot ?? null,
+      warningsSnapshot: warningsSnapshot ?? null,
       createdAt,
     }),
   };

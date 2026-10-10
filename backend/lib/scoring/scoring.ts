@@ -52,6 +52,16 @@ export interface ScoringResult {
   breakdown: DimensionBreakdown;
   vulnerabilities: Vulnerability[];
   topVulnerability: string;
+  modelMetadata: ModelMetadata;
+}
+
+export interface ModelMetadata {
+  version: string;
+  method: string;
+  assumptions: string[];
+  limitations: string[];
+  isPrototype: boolean;
+  validationStatus: "prototype" | "independently_validated";
 }
 
 export type RiskLevel =
@@ -291,5 +301,21 @@ export function scoreBuilding(input: BuildingInput): ScoringResult {
   const vulnerabilities = buildVulnerabilities(breakdown);
   const topVulnerability = vulnerabilities[0]?.label ?? "None identified";
 
-  return { score, riskLevel, breakdown, vulnerabilities, topVulnerability };
+  const modelMetadata: ModelMetadata = {
+    version: "1.0.0-prototype",
+    method: "weighted_linear_sum",
+    assumptions: [
+      "Assumes uniform exposure risk based on occupancy and operating hours.",
+      "Weights and dimensions are static and not calibrated to specific building thermodynamics."
+    ],
+    limitations: [
+      "Result is a calculated prototype score, not an independently validated engineering assessment.",
+      "Depends partially on user-supplied or estimated information which may carry reporting bias.",
+      "Lacks integration with indoor temperature sensors or dynamic energy modeling."
+    ],
+    isPrototype: true,
+    validationStatus: "prototype"
+  };
+
+  return { score, riskLevel, breakdown, vulnerabilities, topVulnerability, modelMetadata };
 }

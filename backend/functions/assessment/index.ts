@@ -153,6 +153,7 @@ export async function handler(
     breakdown: result.breakdown,
     vulnerabilities: result.vulnerabilities,
     topVulnerability: result.topVulnerability,
+    modelMetadata: result.modelMetadata,
     evidence,
     evidenceCompleteness,
     // Weather snapshot captured at assessment creation time
@@ -180,6 +181,7 @@ export async function handler(
         breakdown: result.breakdown,
         vulnerabilities: result.vulnerabilities,
         topVulnerability: result.topVulnerability,
+        modelMetadata: result.modelMetadata,
         evidence,
         evidenceCompleteness,
         weatherSnapshot: weatherSnapshot ?? null,
@@ -199,6 +201,7 @@ export async function handler(
       breakdown: result.breakdown,
       vulnerabilities: result.vulnerabilities,
       topVulnerability: result.topVulnerability,
+      modelMetadata: result.modelMetadata,
       evidence,
       evidenceCompleteness,
       weatherSnapshot: weatherSnapshot ?? null,

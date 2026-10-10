@@ -20,10 +20,7 @@ Globals:
         BUILDINGS_TABLE: !Ref BuildingsTable
         NODE_ENV: production
   Api:
-    Cors:
-      AllowMethods: "'GET,POST,OPTIONS'"
-      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-      AllowOrigin: "'*'"
+    EndpointConfiguration: REGIONAL
 
 # ---------------------------------------------------------------------------
 # Parameters
@@ -50,6 +47,7 @@ Resources:
     Properties:
       Name: !Sub "heatcredit-api-${Stage}"
       StageName: !Ref Stage
+      OpenApiVersion: '3.0.1'
       Description: HeatCredit Heat Resilience Decision Engine API
       MethodSettings:
         - ResourcePath: "/*"

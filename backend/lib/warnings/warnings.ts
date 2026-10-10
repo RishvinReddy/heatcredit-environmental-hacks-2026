@@ -79,7 +79,7 @@ export async function fetchNwsWarnings(
   }
 
   const headers = {
-    "User-Agent": "HeatCredit/1.0 (contact: admin@heatcredit.local)",
+    "User-Agent": "HeatCredit/1.0 (contact: ekomotsu@gmail.com)",
     "Accept": "application/geo+json"
   };
 

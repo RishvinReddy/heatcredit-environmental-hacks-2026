@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { AlertTriangle, ArrowRight, MapPin, ShieldAlert, Sun, Thermometer, Wind, Target, Droplets, ArrowUpRight, Activity } from "lucide-react";
+import { AlertTriangle, ArrowRight, MapPin, ShieldAlert, Sun, Thermometer, Wind, Target, Droplets, ArrowUpRight, Activity, CloudOff, Info, AlertCircle, ShieldCheck, FileText, CheckCircle, Scale, Database } from "lucide-react";
 import { getAssessment, fetchWeather } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -65,6 +65,11 @@ function ResultsContent() {
     { name: "Green", value: data.breakdown.greenInfrastructure, max: 10 },
   ];
 
+  const weatherStatus = weather?.status || (weather?.isDemo ? "demo" : weather ? "live" : "unavailable");
+  const warnings = data.warningsSnapshot;
+  const completeness = data.evidenceCompleteness;
+  const modelMeta = data.modelMetadata;
+
   return (
     <div className="flex-1 bg-muted/5 min-h-screen pb-24">
       {/* HEADER */}
@@ -111,6 +116,9 @@ function ResultsContent() {
               <Badge variant="outline" className={`px-3 py-1 text-sm ${score < 60 ? "border-destructive text-destructive bg-destructive/5" : score < 80 ? "border-amber-500 text-amber-500 bg-amber-500/5" : "border-primary text-primary bg-primary/5"}`}>
                 {riskClass.toUpperCase()} RISK
               </Badge>
+              <p className="mt-4 text-[10px] text-muted-foreground uppercase tracking-widest px-4">
+                Prototype decision-support estimate.<br /> Not a certified engineering or medical assessment.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -168,13 +176,24 @@ function ResultsContent() {
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-bold tracking-widest uppercase text-muted-foreground flex items-center gap-2"><Activity className="h-4 w-4" /> Assessment Snapshot</CardTitle>
             {weather && (
-              <Badge variant="outline" className={weather.isDemo ? "text-amber-500 border-amber-500/30 bg-amber-500/5 text-[10px]" : "text-emerald-500 border-emerald-500/30 bg-emerald-500/5 text-[10px]"}>
-                {weather.isDemo ? "DEMO FALLBACK" : "CAPTURED LIVE"}
+              <Badge variant="outline" className={
+                weatherStatus === "demo" ? "text-amber-500 border-amber-500/30 bg-amber-500/5 text-[10px]" :
+                weatherStatus === "stale" ? "text-amber-500 border-amber-500/30 bg-amber-500/5 text-[10px]" :
+                weatherStatus === "unavailable" ? "text-destructive border-destructive/30 bg-destructive/5 text-[10px]" :
+                "text-emerald-500 border-emerald-500/30 bg-emerald-500/5 text-[10px]"
+              }>
+                {weatherStatus === "demo" ? "DEMO FALLBACK" : weatherStatus === "stale" ? "STALE DATA" : weatherStatus === "unavailable" ? "UNAVAILABLE" : "CAPTURED LIVE"}
               </Badge>
             )}
           </CardHeader>
           <CardContent>
-            {weather ? (
+            {weatherStatus === "unavailable" ? (
+              <div className="text-sm font-mono text-muted-foreground p-8 text-center border border-dashed border-border/40 rounded-lg">
+                <div className="text-destructive mb-2 flex justify-center"><CloudOff className="h-6 w-6" /></div>
+                <div className="text-amber-500 mb-2">Environmental data temporarily unavailable.</div>
+                Assessment cannot confirm current weather conditions.
+              </div>
+            ) : weather ? (
               <>
                 <div className="flex justify-between items-center mb-4 text-xs font-mono text-muted-foreground">
                   <div className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {data.location}</div>
@@ -215,6 +234,136 @@ function ResultsContent() {
             </div>
           </CardContent>
         </Card>
+
+        {/* OFFICIAL WARNINGS */}
+        {warnings && (
+          <Card className="md:col-span-6 border-border/40 shadow-sm bg-background">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-bold tracking-widest uppercase text-muted-foreground flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> Official Heat Warnings</CardTitle>
+              <Badge variant="outline" className={
+                warnings.status === "active" ? "text-destructive border-destructive/30 bg-destructive/5 text-[10px]" :
+                warnings.status === "none" ? "text-emerald-500 border-emerald-500/30 bg-emerald-500/5 text-[10px]" :
+                "text-muted-foreground border-border text-[10px]"
+              }>
+                {warnings.status.toUpperCase()}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              {warnings.status === "active" && warnings.alerts?.length > 0 ? (
+                <div className="space-y-3">
+                  {warnings.alerts.map((alert: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
+                      <h4 className="font-bold text-destructive text-sm">{alert.event}</h4>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{alert.headline || alert.description}</p>
+                      <div className="text-[10px] text-muted-foreground mt-2 font-mono flex flex-col gap-1">
+                        {alert.effective && <span>Effective: {new Date(alert.effective).toLocaleString()}</span>}
+                        {alert.expires && <span>Expires: {new Date(alert.expires).toLocaleString()}</span>}
+                        {alert.senderName && <span className="text-foreground">Source: {alert.senderName}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : warnings.status === "none" ? (
+                <div className="text-sm text-muted-foreground p-6 text-center border border-dashed rounded-lg">
+                  <CheckCircle className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
+                  No matching active heat warning returned by the supported provider.
+                </div>
+              ) : warnings.status === "unsupported" ? (
+                <div className="text-sm text-muted-foreground p-6 text-center border border-dashed rounded-lg">
+                  <Info className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                  Official warning coverage is not supported for this location.
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground p-6 text-center border border-dashed rounded-lg">
+                  <CloudOff className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+                  Warning information could not be retrieved.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* EVIDENCE COMPLETENESS */}
+        {completeness && (
+          <Card className="md:col-span-6 border-border/40 shadow-sm bg-background">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-bold tracking-widest uppercase text-muted-foreground flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Evidence Provenance</CardTitle>
+              <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 text-[10px]">
+                {Math.round(completeness.score)}% COMPLETE
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground mb-4">
+                Indicator of evidence documentation completeness—not a probability that the assessment is correct, and not the building's resilience score.
+              </p>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono mb-4">
+                <div className="p-2 border rounded bg-emerald-500/5 text-emerald-600">
+                  <div className="text-lg font-bold">{completeness.verifiedFields}</div>
+                  Verified
+                </div>
+                <div className="p-2 border rounded bg-amber-500/5 text-amber-600">
+                  <div className="text-lg font-bold">{completeness.unverifiedFields}</div>
+                  Reported
+                </div>
+                <div className="p-2 border rounded bg-muted/10 text-muted-foreground">
+                  <div className="text-lg font-bold">{completeness.missingFields}</div>
+                  Missing
+                </div>
+              </div>
+              {data.evidence && Object.keys(data.evidence).length > 0 && (
+                <div className="space-y-2 mt-4 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                  {Object.entries(data.evidence).map(([field, ev]: [string, any]) => (
+                    <div key={field} className="flex justify-between items-center text-xs p-2 border rounded bg-muted/5">
+                      <span className="font-mono capitalize">{field}</span>
+                      <Badge variant="outline" className={`text-[9px] ${ev.verificationStatus === 'verified' ? 'text-emerald-500 border-emerald-500/30' : ev.verificationStatus === 'owner_reported' ? 'text-amber-500 border-amber-500/30' : 'text-muted-foreground'}`}>
+                        {ev.sourceCategory.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                  ))}
+                  <p className="text-[10px] text-muted-foreground mt-2 italic">* A record is not independently verified merely because it contains caller-supplied metadata.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* MODEL METADATA */}
+        {modelMeta && (
+          <Card className="md:col-span-12 border-border/40 shadow-sm bg-background">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-bold tracking-widest uppercase text-muted-foreground flex items-center gap-2"><Scale className="h-4 w-4" /> Model Methodology & Limitations</CardTitle>
+              <Badge variant="outline" className="text-muted-foreground font-mono text-[10px]">
+                v{modelMeta.version}
+              </Badge>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+              <div>
+                <h4 className="font-semibold text-sm flex items-center gap-2 mb-2"><Database className="h-3 w-3" /> Methodology</h4>
+                <p className="text-xs text-muted-foreground font-mono mb-4">{modelMeta.method.replace(/_/g, ' ')}</p>
+
+                <h4 className="font-semibold text-sm mb-2 text-muted-foreground">Assumptions</h4>
+                <ul className="list-disc pl-4 space-y-1 text-xs text-muted-foreground">
+                  {modelMeta.assumptions?.map((a: string, i: number) => (
+                    <li key={i}>{a}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="bg-muted/10 p-4 rounded-lg border border-border/40">
+                <h4 className="font-semibold text-sm flex items-center gap-2 mb-2 text-destructive"><AlertCircle className="h-3 w-3" /> Known Limitations</h4>
+                <ul className="list-disc pl-4 space-y-2 text-xs text-muted-foreground">
+                  {modelMeta.limitations?.map((l: string, i: number) => (
+                    <li key={i}>{l}</li>
+                  ))}
+                </ul>
+                {modelMeta.validationStatus === "prototype" && (
+                  <div className="mt-4 inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                    <Info className="h-3 w-3" /> Prototype Validation Status
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   );

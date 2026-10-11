@@ -1,26 +1,67 @@
 "use client";
 
+import { useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ShieldCheck, FileText } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function OptimizerLandingPage() {
   return (
-    <div className="flex-1 flex flex-col p-6 md:p-10 max-w-7xl mx-auto w-full h-full items-center justify-center">
-      <div className="bg-background border border-border/40 rounded-xl p-8 max-w-md text-center shadow-sm">
-        <div className="mx-auto w-12 h-12 bg-primary/10 flex items-center justify-center rounded-full mb-4">
-          <ShieldCheck className="h-6 w-6 text-primary" />
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center font-mono text-sm text-muted-foreground animate-pulse">
+          CONNECTING TO CAPITAL ALLOCATION OBSERVATORY...
         </div>
-        <h1 className="text-2xl font-bold tracking-tight mb-2">Optimizer Engine</h1>
-        <p className="text-muted-foreground text-sm mb-6">
-          The Capital Engine requires an active assessment context to optimize resilience investments.
-        </p>
-        <Link 
-          href="/assessment" 
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <FileText className="h-4 w-4" /> Go to Assessments
-        </Link>
+      }
+    >
+      <OptimizerLandingContent />
+    </Suspense>
+  );
+}
+
+function OptimizerLandingContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const rawId = searchParams.get("assessmentId") || searchParams.get("id");
+    const budget = searchParams.get("budget");
+
+    let targetId = rawId;
+    if (!targetId && typeof window !== "undefined") {
+      try {
+        targetId = window.localStorage?.getItem("heatcredit_last_assessment_id") || "demo-school-hyderabad";
+      } catch {
+        targetId = "demo-school-hyderabad";
+      }
+    }
+
+    if (!targetId) {
+      targetId = "demo-school-hyderabad";
+    }
+
+    const query = budget ? `?budget=${budget}` : "";
+    router.replace(`/optimizer/${targetId}${query}`);
+  }, [router, searchParams]);
+
+  return (
+    <div className="flex-1 flex flex-col p-6 md:p-10 max-w-7xl mx-auto w-full min-h-[60vh] items-center justify-center text-center space-y-4">
+      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto animate-pulse">
+        <ShieldCheck className="w-6 h-6" />
       </div>
+      <h2 className="text-xl font-bold text-foreground">
+        Connecting to Capital Allocation Observatory...
+      </h2>
+      <p className="text-xs text-muted-foreground max-w-sm">
+        Routing to active facility assessment optimization context.
+      </p>
+      <Link
+        href="/optimizer/demo-school-hyderabad"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 transition-all shadow-xs"
+      >
+        <span>Open Green Valley School Observatory</span>
+        <ArrowRight className="w-3.5 h-3.5" />
+      </Link>
     </div>
   );
 }

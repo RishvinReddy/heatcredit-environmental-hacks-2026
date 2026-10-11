@@ -1,6 +1,7 @@
 # Official Warning Coverage
 
-## 1. Supported Providers and Jurisdictions
+> ℹ️ **Notice:** For the unified data provenance audit covering epistemic trust tiers, evidence verification rules, weather telemetry, and warning coverage, see [**`DATA_PROVENANCE.md`**](DATA_PROVENANCE.md).
+
 
 Currently, HeatCredit officially supports the following provider(s):
 

@@ -1,6 +1,7 @@
 # HeatCredit — API Reference
 
-## Base URL
+> ℹ️ **Notice:** For the comprehensive, full OpenAPI specification, validation schemas, and error contracts, refer to the canonical reference: [**`API_REFERENCE.md`**](API_REFERENCE.md).
+
 
 ```
 https://{API_GATEWAY_ID}.execute-api.ap-south-1.amazonaws.com/prod

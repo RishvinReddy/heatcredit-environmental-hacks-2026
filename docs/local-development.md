@@ -1,5 +1,7 @@
-# HeatCredit — Local development guide
-# Covers local Lambda testing with SAM and DynamoDB Local
+# HeatCredit — Local Development Guide
+
+> ℹ️ **Notice:** For the production AWS SAM deployment, IAM policies, and CloudWatch guides, see [**`DEPLOYMENT.md`**](DEPLOYMENT.md). For contributor onboarding and environment setup, see [**`CONTRIBUTING.md`**](CONTRIBUTING.md).
+
 
 ## Prerequisites
 

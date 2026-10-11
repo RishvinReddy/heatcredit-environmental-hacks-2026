@@ -1,6 +1,7 @@
-# HeatCredit — 3-Minute Demo Script
+# HeatCredit — Demo Script
 
-**Product:** HeatCredit — Heat Resilience Decision Engine  
+> ℹ️ **Notice:** For the official 2m 45s timed hackathon demonstration walkthrough tailored strictly to the 3-minute video limit, see [**`DEMO_SCRIPT.md`**](DEMO_SCRIPT.md).
+
 **Scenario:** Green Valley School, Hyderabad — ₹50,000 budget
 
 ---

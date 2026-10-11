@@ -1,6 +1,7 @@
 # HeatCredit — Scoring Methodology
 
-> **Disclaimer**: HeatCredit's score is a prototype decision-support metric and is not a certified building-safety or medical standard. It is designed to help decision-makers prioritise investments, not to certify building safety.
+> ℹ️ **Notice:** For the comprehensive mathematical formulation, dimension weights, factor lookup tables, and step-by-step verified benchmark calculations, see the canonical [**`SCORING_METHODOLOGY.md`**](SCORING_METHODOLOGY.md).
+
 
 ---
 

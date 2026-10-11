@@ -1,6 +1,7 @@
 # HeatCredit — Building Evidence and Provenance
 
-> **Objective:** To make every building assessment transparent about where its input data came from, whether it has been verified, and how much confidence users should place in it.
+> ℹ️ **Notice:** For the unified data provenance audit covering epistemic trust tiers, evidence verification rules, weather telemetry, and warning coverage, see [**`DATA_PROVENANCE.md`**](DATA_PROVENANCE.md).
+
 
 ## Philosophy
 

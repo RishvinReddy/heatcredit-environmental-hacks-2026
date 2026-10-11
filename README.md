@@ -26,8 +26,29 @@
   <a href="#architecture">Architecture</a> •
   <a href="#getting-started">Getting Started</a> •
   <a href="#api-reference">API Reference</a> •
-  <a href="#testing">Testing</a>
+  <a href="#testing">Testing</a> •
+  <a href="#technical-documentation--submission-guides">Documentation</a>
 </p>
+
+---
+
+### 📚 Technical Documentation & Submission Guides
+
+| Document | Purpose & Verification Scope |
+|---|---|
+| **[PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)** | Problem statement, intended users, scope, core workflows & objectives. |
+| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System topology, 6 Mermaid diagrams, compute boundaries & AWS services. |
+| **[SCORING_METHODOLOGY.md](docs/SCORING_METHODOLOGY.md)** | 7 physical dimensions, weights, factor formulas & worked ₹50k demo math. |
+| **[INTERVENTIONS_AND_OPTIMIZATION.md](docs/INTERVENTIONS_AND_OPTIMIZATION.md)** | 6-item catalogue, 0/1 knapsack algorithm, feasibility & alternatives. |
+| **[API_REFERENCE.md](docs/API_REFERENCE.md)** | OpenAPI contracts for all 7 routes, JSON request/response schemas & errors. |
+| **[DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md)** | Epistemic trust tiers, evidence completeness metric & warning jurisdictions. |
+| **[TESTING.md](docs/TESTING.md)** | Reproduction guide for all 141 passing tests & build evidence. |
+| **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** | AWS SAM deployment, Amplify CI/CD, DynamoDB config & teardown. |
+| **[SECURITY.md](docs/SECURITY.md)** | IAM least privilege, schema validation, rate limits & threat model. |
+| **[DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)** | Rehearsed 2m 45s demonstration script (< 3 minutes hackathon limit). |
+| **[AI_USAGE_AND_CREDITS.md](docs/AI_USAGE_AND_CREDITS.md)** | AI assistant disclosure, human verification & third-party attributions. |
+| **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** | Developer onboarding, extension workflows & pull request standards. |
+| **[HACKATHON_SUBMISSION.md](docs/HACKATHON_SUBMISSION.md)** | Comprehensive submission write-up covering all 21 hackathon criteria. |
 
 ---
 
@@ -1009,19 +1030,25 @@ See [`docs/local-development.md`](docs/local-development.md) for the repository'
 
 Testing is important because the scoring engine and optimization engine directly influence the recommendations shown to users.
 
-### Test suites
+### Test suites (141 / 141 Passing)
 
-| Suite | Test file | Purpose |
-|---|---|---|
-| Scoring | `tests/scoring/scoring.test.ts` | Validate scoring behavior |
-| Optimizer | `tests/optimizer/optimizer.test.ts` | Validate optimization behavior |
-| API | `tests/api/test-api.sh` | Exercise HTTP API endpoints |
+| Suite | Command | Test file | Tests | Status | Scope |
+|---|---|---|:---:|:---:|---|
+| **Scoring Engine** | `npm run test:scoring` | `tests/scoring/scoring.test.ts` | 32 | ✅ Pass | 7 dimensions, weighting sums, bounds, risk tiers |
+| **Budget Optimizer** | `npm run test:optimizer` | `tests/optimizer/optimizer.test.ts` | 24 | ✅ Pass | 0/1 knapsack, budget limits, ₹50k canonical demo |
+| **Weather Adapter** | `npm run test:weather` | `tests/weather/weather.test.ts` | 9 | ✅ Pass | Open-Meteo telemetry, timeout & fallback labeling |
+| **Warnings Adapter** | `npm run test:warnings` | `tests/warnings/warnings.test.ts` | 21 | ✅ Pass | US NWS alerts, jurisdiction filtering, timestamp logic |
+| **Evidence Validation** | `npm run test:evidence` | `tests/evidence/evidence.test.ts` | 24 | ✅ Pass | Provenance verification, completeness score |
+| **Input Validation** | `npm run test:validation` | `tests/validation/validation.test.ts` | 31 | ✅ Pass | Schema types, boundary limits, NaN/Infinity rejection |
+| **Total Automated** | `npm test` | *All Suites* | **141** | ✅ **141/141** | **100% Pass Rate** |
 
-### Run all unit tests
+### Run all automated tests
 
 ```bash
 npm test
 ```
+
+See [`docs/TESTING.md`](docs/TESTING.md) for full reproduction evidence and command outputs.
 
 ### Run API integration tests locally
 
@@ -1386,18 +1413,20 @@ Do not leave placeholder URLs in the final hackathon submission.
 
 ## Team
 
-### Build Bros
+### Build Bros — Verified Contributions
 
-| Team member | GitHub |
-|---|---|
-| Rishvin Reddy | [@RishvinReddy](https://github.com/RishvinReddy) |
-| Navari Yashwanth Reddy | [@yashwanthreddy](https://github.com/yashwanthreddy) |
-| Pocharam Gayathri | [@gayathri_pocharam](https://github.com/gayathri_pocharam) |
-| Yogamruth Reddy | [@yogamruth](https://github.com/yogamruth) |
+| Team Member | Role | Core Contributions |
+|---|---|---|
+| **Rishvin Reddy** | Project Lead & Fullstack Engineer | System Architecture, AWS SAM Infrastructure, Scoring Engine & 0/1 Knapsack Core, Client-Side Engine Integration. |
+| **Pocharam Gayathri** | Environmental Modeling Lead | Vulnerability Dimension Calibration, Weights Balancing, Evidence Provenance Architecture, Scenario Decision Rules. |
+| **Guggilla Yogamruth Reddy** | Cloud & Testing Engineer | Serverless API Handlers, DynamoDB Persistence Schemas, Open-Meteo & NWS Alert Adapters, 141 Automated Tests Suite. |
+| **Navari Yashwanth Reddy** | Frontend & UI/UX Engineer | Editorial Climate-Tech UI Design, Responsive Workspaces, Recharts Analytics Visualizations, Architecture Canvas. |
 
-**Team name:** Build Bros
+---
 
-The team roster reflects the registered team information. Add individual contribution details only after confirming each member's actual responsibilities.
+## AI-Assisted Development Disclosure
+
+In accordance with Environmental Hacks 2026 transparency guidelines, Team Build Bros used **Google Antigravity Agentic IDE** for boilerplate scaffolding, TypeScript interface typing, and CSS layout refactoring. All core mathematical formulas, knapsack logic, AWS CloudFormation declarations, and security boundaries were designed, audited, and verified by the human engineering team. Full disclosure: [`docs/AI_USAGE_AND_CREDITS.md`](docs/AI_USAGE_AND_CREDITS.md).
 
 ---
 

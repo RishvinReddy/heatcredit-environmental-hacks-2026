@@ -2,6 +2,8 @@
 
 > **Event:** Environmental Hacks 2026 — Event 02 of Bharat Builds Tour
 > **Target Video Runtime:** **2 minutes 45 seconds** (Strictly under the 3-minute hackathon limit)
+> **Published Video URL (YouTube):** [https://youtu.be/YSq04cWQ8as](https://youtu.be/YSq04cWQ8as)
+> **Live Application (AWS Amplify):** [https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/](https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/)
 > **Scenario:** Green Valley School, Hyderabad — ₹50,000 Budget Optimization
 > **Presenter Checklist:** High-resolution browser window (1080p), preloaded facility profile, terminal or AWS Console ready for architecture evidence.
 

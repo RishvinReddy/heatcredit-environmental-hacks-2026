@@ -20,6 +20,27 @@
   <img src="https://img.shields.io/badge/License-MIT-16A34A?style=for-the-badge" alt="MIT License"/>
 </p>
 
+<!-- Live Application & Interactive Showcase Banner -->
+<p align="center">
+  <a href="https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/" target="_blank" rel="noopener noreferrer">
+    <img src="assets/dashboard-doodle.svg" alt="Click here to access the HeatCredit System Dashboard on AWS Amplify" width="800"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/🚀_Live_Dashboard-AWS_Amplify-0F766E?style=for-the-badge&logo=awsamplify&logoColor=white" alt="Live Dashboard"/>
+  </a>
+  &nbsp;
+  <a href="https://youtu.be/YSq04cWQ8as" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/🎬_Demo_Video-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Demo Video"/>
+  </a>
+  &nbsp;
+  <a href="https://lnkd.in/p/gzhSDWzy" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/📝_Project_Article-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn Article"/>
+  </a>
+</p>
+
 <p align="center">
   <a href="#overview">Overview</a> •
   <a href="#features">Features</a> •
@@ -1400,14 +1421,11 @@ Refer to the official event materials for the applicable deadline and complete e
 
 ### Submission assets
 
-Add these links when they are available:
-
-- **Live application:** Add the verified deployment URL.
-- **Demo video:** Add the public or unlisted YouTube URL.
-- **Technical presentation:** Add the presentation URL, if published.
-- **Project write-up:** Add the published project article, if available.
-
-Do not leave placeholder URLs in the final hackathon submission.
+- **🚀 Live Application (AWS Amplify):** [https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/](https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/)
+- **🎬 Demo Video (YouTube):** [https://youtu.be/YSq04cWQ8as](https://youtu.be/YSq04cWQ8as)
+- **📝 Project Article (LinkedIn):** [https://lnkd.in/p/gzhSDWzy](https://lnkd.in/p/gzhSDWzy)
+- **📂 Source Code Repository:** [https://github.com/RishvinReddy/heatcredit-environmental-hacks-2026](https://github.com/RishvinReddy/heatcredit-environmental-hacks-2026)
+- **📑 Full Hackathon Write-Up:** [`docs/HACKATHON_SUBMISSION.md`](docs/HACKATHON_SUBMISSION.md)
 
 ---
 

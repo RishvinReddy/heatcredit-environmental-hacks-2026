@@ -7,6 +7,9 @@
 > **Team Name:** Build Bros
 > **Team Members:** Rishvin Reddy, Pocharam Gayathri, Guggilla Yogamruth Reddy, Navari Yashwanth Reddy
 > **Repository:** [https://github.com/RishvinReddy/heatcredit-environmental-hacks-2026](https://github.com/RishvinReddy/heatcredit-environmental-hacks-2026)
+> **Live Application (AWS Amplify):** [https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/](https://feature-phase-3-building-evidence.d6yb0i87oun6i.amplifyapp.com/)
+> **Demo Video (YouTube):** [https://youtu.be/YSq04cWQ8as](https://youtu.be/YSq04cWQ8as)
+> **Technical Article (LinkedIn):** [https://lnkd.in/p/gzhSDWzy](https://lnkd.in/p/gzhSDWzy)
 > **License:** MIT License
 
 ---

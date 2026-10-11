@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09141f" />
+      <stop offset="50%" stop-color="#0f2231" />
+      <stop offset="100%" stop-color="#07111a" />
+    </linearGradient>
+    <linearGradient id="btnGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Container Box with Hand-Drawn Wobbly Effect -->
+  <rect x="10" y="10" width="800" height="180" rx="20" fill="url(#bgGrad)" stroke="#1e3a4f" stroke-width="2" />
+
+  <!-- Subtle Hand-drawn sketchy outer border overlay -->
+  <path d="M 14,24 Q 410,6 806,20 Q 816,100 804,182 Q 400,194 16,180 Q 4,96 14,24 Z"
+        fill="none" stroke="#2dd4bf" stroke-width="1.2" stroke-dasharray="8 4" opacity="0.35" />
+
+  <!-- LEFT: Interactive Button Representation -->
+  <g transform="translate(45, 45)">
+    <!-- Button Glow Shadow -->
+    <rect x="-2" y="2" width="370" height="96" rx="14" fill="#0d9488" opacity="0.25" filter="url(#glow)" />
+    <!-- Main Button Body -->
+    <rect x="0" y="0" width="366" height="92" rx="14" fill="url(#btnGrad)" stroke="#5eead4" stroke-width="1.8" />
+
+    <!-- Mini Pulse Dot -->
+    <circle cx="28" cy="28" r="6" fill="#fef08a">
+      <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="28" cy="28" r="10" fill="none" stroke="#fef08a" stroke-width="1.5" opacity="0.6">
+      <animate attributeName="r" values="7;14;7" dur="2s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" />
+    </circle>
+
+    <!-- Header & Subtitle -->
+    <text x="48" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#ccfbf1" letter-spacing="1">LIVE AWS AMPLIFY DEPLOYMENT</text>
+
+    <text x="28" y="66" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#ffffff" letter-spacing="0.3">
+      Launch Live Dashboard
+    </text>
+
+    <!-- Arrow icon in button -->
+    <g transform="translate(322, 54)">
+      <circle cx="0" cy="0" r="16" fill="#042f2e" opacity="0.4" />
+      <path d="M -6,0 L 4,0 M 0,-4 L 4,0 L 0,4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    </g>
+  </g>
+
+  <!-- CENTER-RIGHT: Whimsical Hand-Drawn Doodle Pointer -->
+  <g transform="translate(450, 42)">
+    <!-- Hand-drawn curved doodle arrow swooping from text towards button -->
+    <path d="M 120,72 C 60,88 -15,75 -32,32"
+          fill="none" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1 0" />
+    <!-- Doodle Arrow Head -->
+    <path d="M -36,46 L -32,30 L -18,34"
+          fill="none" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Hand-drawn style annotations & text -->
+    <text x="60" y="24" font-family="'Comic Sans MS', 'Chalkboard SE', 'Caveat', 'Segoe Print', cursive, sans-serif"
+          font-size="22" font-weight="bold" fill="#fbbf24" letter-spacing="0.5">
+      ✨ Click here to access!
+    </text>
+
+    <text x="65" y="52" font-family="'Comic Sans MS', 'Chalkboard SE', 'Caveat', 'Segoe Print', cursive, sans-serif"
+          font-size="16" font-weight="600" fill="#93c5fd">
+      Interactive System Dashboard ↗
+    </text>
+
+    <text x="65" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#94a3b8">
+      Explore assessments • Run budget knapsack • Review live warnings
+    </text>
+
+    <!-- Decorative Hand-drawn Stars & Doodles -->
+    <!-- Star 1 -->
+    <path d="M 280,14 L 283,22 L 291,24 L 284,28 L 285,36 L 279,31 L 273,35 L 275,27 L 269,23 L 277,21 Z"
+          fill="#f59e0b" opacity="0.85" />
+    <!-- Sparkle 2 -->
+    <path d="M 20,95 Q 26,95 26,89 Q 26,95 32,95 Q 26,95 26,101 Q 26,95 20,95 Z"
+          fill="#38bdf8" opacity="0.9" />
+    <!-- Sparkle 3 -->
+    <path d="M 330,65 Q 335,65 335,60 Q 335,65 340,65 Q 335,65 335,70 Q 335,65 330,65 Z"
+          fill="#fbbf24" opacity="0.8" />
+  </g>
+</svg>

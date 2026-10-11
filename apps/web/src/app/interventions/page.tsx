@@ -11,6 +11,7 @@ export default function InterventionLabPage() {
   const [interventions, setInterventions] = useState<any[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [provenance, setProvenance] = useState<string>("");
 
   useEffect(() => {
     async function load() {
@@ -18,6 +19,7 @@ export default function InterventionLabPage() {
         const data = await fetchInterventions();
         const interventionsList = data?.interventions || (Array.isArray(data) ? data : []);
         setInterventions(interventionsList);
+        if (data?.provenance) setProvenance(data.provenance);
         if (interventionsList.length > 0) setSelected(interventionsList[0]);
       } catch (err) {
         console.error(err);
@@ -36,6 +38,12 @@ export default function InterventionLabPage() {
           <div>
             <div className="flex items-center gap-2 text-primary font-bold text-[10px] tracking-widest uppercase mb-2">
               <Beaker className="h-3 w-3" /> Decision Laboratory
+              {provenance && (
+                <>
+                  <span className="text-muted-foreground/60">•</span>
+                  <span className="text-muted-foreground font-mono font-normal">{provenance}</span>
+                </>
+              )}
             </div>
             <h1 className="text-2xl font-bold tracking-tight">Intervention Intelligence</h1>
             <p className="text-sm text-muted-foreground mt-1">Compare resilience investments before committing capital.</p>

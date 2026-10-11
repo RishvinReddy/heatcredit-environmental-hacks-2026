@@ -83,6 +83,12 @@ function OptimizerContent() {
         <header className="mb-10">
           <div className="flex items-center gap-2 text-primary font-bold text-[10px] tracking-widest uppercase mb-2">
             <Cpu className="h-3 w-3" /> 0/1 Knapsack Algorithm
+            {optData?.provenance && (
+              <>
+                <span className="text-muted-foreground/60">•</span>
+                <span className="text-muted-foreground font-mono font-normal">{optData.provenance}</span>
+              </>
+            )}
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Capital Allocation Engine</h1>
           <p className="text-sm text-muted-foreground mt-1">Find the highest-value resilience package under a strict capital constraint.</p>

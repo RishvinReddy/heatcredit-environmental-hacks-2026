@@ -29,6 +29,7 @@ function ReportContent() {
       try {
         const assessment = await getAssessment(id);
         setData(assessment);
+        if (!assessment) return;
 
         // Use 50k default budget for the report snapshot
         const opt = await optimizeBudget(id, 50000);

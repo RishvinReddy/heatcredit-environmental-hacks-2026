@@ -6,7 +6,11 @@
   "scripts": {
     "test:scoring": "npx ts-node --project tsconfig.test.json tests/scoring/scoring.test.ts",
     "test:optimizer": "npx ts-node --project tsconfig.test.json tests/optimizer/optimizer.test.ts",
-    "test": "npm run test:scoring && npm run test:optimizer",
+    "test:weather": "npx ts-node --project tsconfig.test.json tests/weather/weather.test.ts",
+    "test:warnings": "npx ts-node --project tsconfig.test.json tests/warnings/warnings.test.ts",
+    "test:evidence": "npx ts-node --project tsconfig.test.json tests/evidence/evidence.test.ts",
+    "test:validation": "npx ts-node --project tsconfig.test.json tests/validation/validation.test.ts",
+    "test": "npm run test:scoring && npm run test:optimizer && npm run test:weather && npm run test:warnings && npm run test:evidence && npm run test:validation",
     "test:api:local": "bash tests/api/test-api.sh http://localhost:3001",
     "test:api:deployed": "bash tests/api/test-api.sh",
     "build": "sam build",

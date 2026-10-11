@@ -68,9 +68,22 @@ export async function handler(
     return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
 
+  const bodyStr = event.body
+    ? (event.isBase64Encoded ? Buffer.from(event.body, "base64").toString("utf8") : event.body)
+    : "";
+
+  // Early payload size rejection (limit to 256KB to prevent memory exhaustion and excessive parsing)
+  if (Buffer.byteLength(bodyStr, "utf8") > 256 * 1024) {
+    return {
+      statusCode: 413,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Payload too large. Maximum size is 256KB." }),
+    };
+  }
+
   let body: unknown;
   try {
-    body = JSON.parse(event.body ?? "{}");
+    body = JSON.parse(bodyStr || "{}");
   } catch {
     return {
       statusCode: 400,

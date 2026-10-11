@@ -1,8 +1,8 @@
 /**
- * HeatCredit — /assessments Lambda
+ * HeatCredit ΓÇö /assessments Lambda
  *
- * POST /assessments    — Score a building, persist and return result.
- * GET  /assessments/:id — Retrieve a previously scored assessment.
+ * POST /assessments    ΓÇö Score a building, persist and return result.
+ * GET  /assessments/:id ΓÇö Retrieve a previously scored assessment.
  */
 
 import {
@@ -15,10 +15,13 @@ import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dyn
 import { scoreBuilding } from "../../lib/scoring/scoring";
 import { validateAssessmentInput } from "../../lib/validation/validation";
 import { getWeather } from "../../lib/weather/weather";
+import { getWarnings } from "../../lib/warnings/warnings";
 import type { BuildingInput } from "../../lib/scoring/scoring";
+import { calculateEvidenceCompleteness } from "../../lib/data-quality/building-evidence";
+import type { EvidenceRecord } from "../../lib/data-quality/building-evidence";
 
 // ---------------------------------------------------------------------------
-// DynamoDB client (singleton — reused across warm Lambda invocations)
+// DynamoDB client (singleton ΓÇö reused across warm Lambda invocations)
 // ---------------------------------------------------------------------------
 
 const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION ?? "ap-south-1" });
@@ -60,7 +63,7 @@ export async function handler(
     return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
 
-  // GET /assessments/:id — retrieve a stored assessment
+  // GET /assessments/:id ΓÇö retrieve a stored assessment
   if (event.httpMethod === "GET") {
     const assessmentId = event.pathParameters?.id;
     if (!assessmentId) {
@@ -93,8 +96,21 @@ export async function handler(
   }
 
   let body: unknown;
+  const bodyStr = event.body
+    ? (event.isBase64Encoded ? Buffer.from(event.body, "base64").toString("utf8") : event.body)
+    : "";
+
+  // Early payload size rejection (limit to 256KB to prevent memory exhaustion and excessive parsing)
+  if (Buffer.byteLength(bodyStr, "utf8") > 256 * 1024) {
+    return {
+      statusCode: 413,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Payload too large. Maximum size is 256KB." }),
+    };
+  }
+
   try {
-    body = JSON.parse(event.body ?? "{}");
+    body = JSON.parse(bodyStr || "{}");
   } catch {
     return {
       statusCode: 400,
@@ -114,13 +130,25 @@ export async function handler(
   }
 
   const input = body as BuildingInput;
+  const inputWithEv = body as { evidence?: Record<string, unknown> };
 
-  // Score + fetch weather snapshot concurrently
-  const [result, { weather: weatherSnapshot }] = await Promise.all([
+  const evidence = (inputWithEv.evidence as Record<string, EvidenceRecord>) ?? null;
+  const evidenceCompleteness = calculateEvidenceCompleteness(evidence);
+
+  // Score + fetch weather and warnings concurrently
+  const [result, weatherSnapshot, warningsSnapshot] = await Promise.all([
     Promise.resolve(scoreBuilding(input)),
-    (input.latitude && input.longitude)
+    (input.latitude !== undefined && input.longitude !== undefined)
       ? getWeather(input.latitude, input.longitude)
-      : Promise.resolve({ weather: null, source: "none" as const }),
+      : Promise.resolve(null),
+    (input.latitude !== undefined && input.longitude !== undefined)
+      ? getWarnings(input.latitude, input.longitude).catch(() => ({
+          status: "unavailable" as const,
+          checkedAt: new Date().toISOString(),
+          alerts: [],
+          message: "Warning fetch failed in assessment."
+        }))
+      : Promise.resolve(null),
   ]);
 
   const assessmentId = generateAssessmentId();
@@ -147,8 +175,14 @@ export async function handler(
     breakdown: result.breakdown,
     vulnerabilities: result.vulnerabilities,
     topVulnerability: result.topVulnerability,
+    modelMetadata: result.modelMetadata,
+    // Evidence provenance
+    evidence,
+    evidenceCompleteness,
     // Weather snapshot captured at assessment creation time
     weatherSnapshot: weatherSnapshot ?? null,
+    // Warning snapshot captured at assessment creation time
+    warningsSnapshot: warningsSnapshot ?? null,
   };
 
   // Persist
@@ -161,7 +195,7 @@ export async function handler(
     );
   } catch (err) {
     console.error("DynamoDB PutCommand failed:", err);
-    // Return the result even if persistence fails — don't block the demo
+    // Return the result even if persistence fails ΓÇö don't block the demo
     return {
       statusCode: 200,
       headers: { ...CORS_HEADERS, "X-Storage-Warning": "persistence-unavailable" },
@@ -172,7 +206,11 @@ export async function handler(
         breakdown: result.breakdown,
         vulnerabilities: result.vulnerabilities,
         topVulnerability: result.topVulnerability,
+        modelMetadata: result.modelMetadata,
+        evidence,
+        evidenceCompleteness,
         weatherSnapshot: weatherSnapshot ?? null,
+        warningsSnapshot: warningsSnapshot ?? null,
         createdAt,
         warning: "Assessment scored but could not be persisted.",
       }),
@@ -189,7 +227,11 @@ export async function handler(
       breakdown: result.breakdown,
       vulnerabilities: result.vulnerabilities,
       topVulnerability: result.topVulnerability,
+      modelMetadata: result.modelMetadata,
+      evidence,
+      evidenceCompleteness,
       weatherSnapshot: weatherSnapshot ?? null,
+      warningsSnapshot: warningsSnapshot ?? null,
       createdAt,
     }),
   };

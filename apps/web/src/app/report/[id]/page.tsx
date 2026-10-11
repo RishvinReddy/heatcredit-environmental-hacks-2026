@@ -29,7 +29,8 @@ function ReportContent() {
       try {
         const assessment = await getAssessment(id);
         setData(assessment);
-        
+        if (!assessment) return;
+
         // Use 50k default budget for the report snapshot
         const opt = await optimizeBudget(id, 50000);
         setOptData(opt);
@@ -51,11 +52,26 @@ function ReportContent() {
   }, [id]);
 
   if (loading) return <div className="flex h-[50vh] items-center justify-center font-mono text-sm text-muted-foreground animate-pulse">GENERATING DECISION DOCUMENT...</div>;
-  if (!data) return <div className="p-12 text-center text-destructive font-mono">ERROR: Assessment context lost.</div>;
+  if (!data) return (
+    <div className="flex h-screen items-center justify-center p-10">
+      <div className="bg-background border border-destructive/40 rounded-xl p-8 max-w-md text-center shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight mb-2 text-destructive">Assessment Context Lost</h1>
+        <p className="text-muted-foreground text-sm mb-6">
+          The requested assessment could not be found. It may have expired or the ID is invalid.
+        </p>
+        <button
+          onClick={() => window.location.href = "/assessment"}
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Start New Assessment
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="bg-muted/10 min-h-screen py-12 px-4 print:py-0 print:px-0 print:bg-white">
-      
+
       {/* Web Only Action Bar */}
       <div className="max-w-4xl mx-auto mb-8 flex justify-end print:hidden">
         <Button onClick={() => window.print()} variant="outline" className="gap-2 bg-background shadow-sm">
@@ -65,7 +81,7 @@ function ReportContent() {
 
       {/* DOCUMENT PAGE */}
       <div className="max-w-4xl mx-auto bg-background p-12 md:p-16 border border-border/40 shadow-sm rounded-sm print:border-none print:shadow-none print:p-0 print:w-full">
-        
+
         {/* HEADER */}
         <header className="border-b-2 border-foreground pb-8 mb-12">
           <div className="flex justify-between items-start mb-6">
@@ -78,7 +94,7 @@ function ReportContent() {
               <div className="text-sm font-mono text-muted-foreground mt-1">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
             </div>
           </div>
-          
+
           <h1 className="text-4xl font-bold tracking-tight mb-2">Climate Resilience Strategy</h1>
           <div className="flex items-center gap-2 text-foreground font-medium">
             <MapPin className="h-4 w-4" /> {data.location} [{data.latitude}, {data.longitude}]
@@ -89,9 +105,9 @@ function ReportContent() {
         <section className="mb-12">
           <SectionTitle title="01. Executive Summary" />
           <p className="text-foreground leading-relaxed">
-            This document outlines the deterministic heat vulnerability assessment for the target infrastructure located in {data.location}. 
-            Based on the HeatCredit engine's evaluation of the building envelope, operational parameters, and current resilience capabilities, 
-            the facility requires strategic capital allocation to mitigate occupant heat stress. The authorized intervention package mathematically maximizes 
+            This document outlines the deterministic heat vulnerability assessment for the target infrastructure located in {data.location}.
+            Based on the HeatCredit engine's evaluation of the building envelope, operational parameters, and current resilience capabilities,
+            the facility requires strategic capital allocation to mitigate occupant heat stress. The authorized intervention package mathematically maximizes
             resilience gain within a hypothetical ₹50,000 budget constraint.
           </p>
         </section>

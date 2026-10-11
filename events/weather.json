@@ -1,0 +1,7 @@
+{
+  "httpMethod": "GET",
+  "queryStringParameters": {
+    "lat": "17.3850",
+    "lon": "78.4867"
+  }
+}

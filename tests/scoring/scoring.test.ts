@@ -144,6 +144,15 @@ assert(
   ["moderate", "high", "critical"].includes(schoolResult.riskLevel)
 );
 
+// --- Model metadata ---
+console.log("\nModel Metadata:");
+assert("Includes version", !!schoolResult.modelMetadata.version);
+assert("Marked as prototype", schoolResult.modelMetadata.isPrototype === true);
+assert("Includes assumptions", schoolResult.modelMetadata.assumptions.length > 0);
+assert("Includes limitations", schoolResult.modelMetadata.limitations.length > 0);
+assert("Status is prototype", schoolResult.modelMetadata.validationStatus === "prototype");
+
+
 // --- Breakdown integrity ---
 console.log("\nBreakdown integrity:");
 const { breakdown } = schoolResult;

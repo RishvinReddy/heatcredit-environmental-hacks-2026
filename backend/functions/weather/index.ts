@@ -27,10 +27,15 @@ export async function handler(
   const latStr = params["lat"];
   const lonStr = params["lon"];
 
+  const errorHeaders = {
+    ...CORS_HEADERS,
+    "Cache-Control": "no-store",
+  };
+
   if (!latStr || !lonStr) {
     return {
       statusCode: 400,
-      headers: CORS_HEADERS,
+      headers: errorHeaders,
       body: JSON.stringify({ error: "lat and lon query parameters are required." }),
     };
   }
@@ -41,18 +46,27 @@ export async function handler(
   if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
     return {
       statusCode: 400,
-      headers: CORS_HEADERS,
+      headers: errorHeaders,
       body: JSON.stringify({ error: "Invalid lat/lon values." }),
     };
   }
 
-  const { weather, source } = await getWeather(lat, lon);
+  const weather = await getWeather(lat, lon);
+
+  if (weather.dataQuality === "unavailable") {
+    return {
+      statusCode: 503,
+      headers: errorHeaders,
+      body: JSON.stringify({ error: "Weather data currently unavailable." }),
+    };
+  }
 
   return {
     statusCode: 200,
     headers: {
       ...CORS_HEADERS,
-      ...(source === "fallback" ? { "X-Weather-Source": "fallback-demo" } : {}),
+      "Cache-Control": "public, max-age=300",
+      ...(weather.dataQuality === "demo" ? { "X-Weather-Source": "fallback-demo" } : {}),
     },
     body: JSON.stringify(weather),
   };

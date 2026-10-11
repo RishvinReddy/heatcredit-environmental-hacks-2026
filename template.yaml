@@ -7,7 +7,7 @@ Description: HeatCredit — Heat Resilience Decision Engine (AWS SAM)
 # ---------------------------------------------------------------------------
 Globals:
   Function:
-    Runtime: nodejs20.x
+    Runtime: nodejs24.x
     Timeout: 15
     MemorySize: 256
     Architectures:
@@ -20,10 +20,7 @@ Globals:
         BUILDINGS_TABLE: !Ref BuildingsTable
         NODE_ENV: production
   Api:
-    Cors:
-      AllowMethods: "'GET,POST,OPTIONS'"
-      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-      AllowOrigin: "'*'"
+    EndpointConfiguration: REGIONAL
 
 # ---------------------------------------------------------------------------
 # Parameters
@@ -50,7 +47,33 @@ Resources:
     Properties:
       Name: !Sub "heatcredit-api-${Stage}"
       StageName: !Ref Stage
+      OpenApiVersion: '3.0.1'
       Description: HeatCredit Heat Resilience Decision Engine API
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingBurstLimit: 50
+          ThrottlingRateLimit: 100
+
+  GatewayResponseDefault4XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      ResponseType: DEFAULT_4XX
+      RestApiId: !Ref HeatCreditApi
+
+  GatewayResponseDefault5XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      ResponseType: DEFAULT_5XX
+      RestApiId: !Ref HeatCreditApi
 
   # -----------------------------------------------------------------------
   # DynamoDB Tables
@@ -215,6 +238,39 @@ Resources:
           - backend/functions/weather/index.ts
 
   # -----------------------------------------------------------------------
+  # Lambda: GET /warnings
+  # -----------------------------------------------------------------------
+  WarningsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "heatcredit-warnings-${Stage}"
+      Handler: index.handler
+      Description: Official heat warnings integration
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        WarningsGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /warnings
+            Method: GET
+        WarningsOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HeatCreditApi
+            Path: /warnings
+            Method: OPTIONS
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        EntryPoints:
+          - backend/functions/warnings/index.ts
+
+  # -----------------------------------------------------------------------
   # Lambda: POST /assessments
   # -----------------------------------------------------------------------
   AssessmentFunction:
@@ -309,6 +365,12 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "/aws/lambda/heatcredit-weather-${Stage}"
+      RetentionInDays: 7
+
+  WarningsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/heatcredit-warnings-${Stage}"
       RetentionInDays: 7
 
   AssessmentFunctionLogGroup:

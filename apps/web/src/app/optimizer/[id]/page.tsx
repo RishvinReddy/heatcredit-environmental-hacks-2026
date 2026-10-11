@@ -38,8 +38,12 @@ function OptimizerContent() {
         // Pre-calculate frontier for demo
         const budgets = [0, 10000, 20000, 30000, 40000, 50000, 75000, 100000];
         const points = await Promise.all(budgets.map(async b => {
-          const res = await optimizeBudget(id, b);
-          return { budget: b, score: res.projectedScore };
+          try {
+            const res = await optimizeBudget(id, b);
+            return { budget: b, score: res?.projectedScore ?? data?.score ?? 0 };
+          } catch {
+            return { budget: b, score: data?.score ?? 0 };
+          }
         }));
         setFrontier(points);
       } catch (err) {
@@ -182,30 +186,30 @@ function OptimizerContent() {
               <div className="font-mono text-sm animate-pulse text-muted-foreground">OPTIMIZING...</div>
             ) : (
               <div className="space-y-3">
-                {optData?.interventions.map((inv: any, i: number) => (
+                {(optData?.selectedInterventions || optData?.interventions || [])?.map((inv: any, i: number) => (
                   <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-background border border-border/40 rounded-xl shadow-sm gap-4">
                     <div className="flex items-center gap-3">
                       <ShieldCheck className="h-5 w-5 text-primary" />
                       <div>
                         <div className="font-bold text-sm">{inv.name}</div>
-                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{inv.dimensionTarget.replace(/([A-Z])/g, ' $1').trim()}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{(inv.targetDimension || inv.dimensionTarget || inv.category || 'General').replace(/([A-Z])/g, ' $1').trim()}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-6 sm:text-right">
                       <div>
                         <div className="text-[10px] uppercase text-muted-foreground font-bold">CAPEX</div>
-                        <div className="font-mono font-medium">₹{inv.cost.toLocaleString()}</div>
+                        <div className="font-mono font-medium">₹{(inv.estimatedCost ?? inv.cost ?? 0).toLocaleString()}</div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase text-primary font-bold">IMPACT</div>
-                        <div className="font-bold text-primary">+{inv.resilienceImpact}</div>
+                        <div className="font-bold text-primary">+{(inv.impact ?? inv.resilienceImpact ?? 0)}</div>
                       </div>
                     </div>
                   </div>
                 ))}
-                {optData?.interventions.length === 0 && (
+                {((optData?.selectedInterventions || optData?.interventions)?.length === 0 || optData?.feasible === false) && (
                   <div className="p-8 text-center bg-background border border-border/40 rounded-xl font-mono text-sm text-muted-foreground">
-                    No viable interventions found under this constraint.
+                    {optData?.message || "No viable interventions found under this constraint."}
                   </div>
                 )}
               </div>

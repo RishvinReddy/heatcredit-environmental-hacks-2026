@@ -58,9 +58,9 @@ function ScenariosContent() {
       if (!assessment || !assessmentId) return;
       try {
         const [base, bal, agg] = await Promise.all([
-          optimizeBudget(assessmentId, budgets.baseline),
-          optimizeBudget(assessmentId, budgets.balanced),
-          optimizeBudget(assessmentId, budgets.aggressive)
+          optimizeBudget(assessmentId, budgets.baseline).catch(() => null),
+          optimizeBudget(assessmentId, budgets.balanced).catch(() => null),
+          optimizeBudget(assessmentId, budgets.aggressive).catch(() => null)
         ]);
         setResults({ baseline: base, balanced: bal, aggressive: agg });
       } catch (err) {
@@ -197,8 +197,8 @@ function ScenariosContent() {
             <tr>
               <td className="p-4 font-semibold text-muted-foreground">Interventions Count</td>
               <td className="p-4 font-mono text-center">0</td>
-              <td className="p-4 font-mono text-center">{results.balanced?.interventions.length || 0}</td>
-              <td className="p-4 font-mono text-center">{results.aggressive?.interventions.length || 0}</td>
+              <td className="p-4 font-mono text-center">{results.balanced?.selectedInterventions?.length ?? results.balanced?.interventions?.length ?? 0}</td>
+              <td className="p-4 font-mono text-center">{results.aggressive?.selectedInterventions?.length ?? results.aggressive?.interventions?.length ?? 0}</td>
             </tr>
           </tbody>
         </table>
@@ -257,7 +257,7 @@ function ScenarioCard({ title, budget, setBudget, data, baseScore, isBaseline, i
           </div>
           <div className="flex justify-between">
             <span>Interventions:</span>
-            <span className="font-mono text-foreground font-medium">{data?.interventions.length || 0}</span>
+            <span className="font-mono text-foreground font-medium">{data?.selectedInterventions?.length ?? data?.interventions?.length ?? 0}</span>
           </div>
         </div>
       </div>

@@ -16,8 +16,9 @@ export default function InterventionLabPage() {
     async function load() {
       try {
         const data = await fetchInterventions();
-        setInterventions(data);
-        if (data.length > 0) setSelected(data[0]);
+        const interventionsList = data?.interventions || (Array.isArray(data) ? data : []);
+        setInterventions(interventionsList);
+        if (interventionsList.length > 0) setSelected(interventionsList[0]);
       } catch (err) {
         console.error(err);
       } finally {
@@ -63,26 +64,34 @@ export default function InterventionLabPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/20">
-                  {interventions.map((inv) => (
-                    <tr 
-                      key={inv.id} 
-                      onClick={() => setSelected(inv)}
-                      className={`cursor-pointer transition-colors ${selected?.id === inv.id ? 'bg-primary/5' : 'hover:bg-muted/5'}`}
-                    >
-                      <td className="px-6 py-4 font-semibold text-foreground flex items-center gap-2">
-                        {selected?.id === inv.id && <ChevronRight className="h-4 w-4 text-primary" />}
-                        {inv.name}
-                      </td>
-                      <td className="px-6 py-4 font-mono font-medium text-right">₹{inv.cost.toLocaleString()}</td>
-                      <td className="px-6 py-4 font-bold text-primary text-right">+{inv.resilienceImpact}</td>
-                      <td className="px-6 py-4 capitalize text-xs">{inv.dimensionTarget.replace(/([A-Z])/g, ' $1').trim()}</td>
-                      <td className="px-6 py-4 text-right">
-                        <Badge variant="outline" className="font-mono text-[9px] bg-background">
-                          {((inv.resilienceImpact / inv.cost) * 10000).toFixed(1)} pt/₹10k
-                        </Badge>
+                  {interventions.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground font-mono text-sm">
+                        No interventions available.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    interventions.map((inv) => (
+                      <tr
+                        key={inv.id}
+                        onClick={() => setSelected(inv)}
+                        className={`cursor-pointer transition-colors ${selected?.id === inv.id ? 'bg-primary/5' : 'hover:bg-muted/5'}`}
+                      >
+                        <td className="px-6 py-4 font-semibold text-foreground flex items-center gap-2">
+                          {selected?.id === inv.id && <ChevronRight className="h-4 w-4 text-primary" />}
+                          {inv.name}
+                        </td>
+                        <td className="px-6 py-4 font-mono font-medium text-right">₹{(inv.estimatedCost ?? inv.cost ?? 0).toLocaleString()}</td>
+                        <td className="px-6 py-4 font-bold text-primary text-right">+{(inv.impact ?? inv.resilienceImpact ?? 0)}</td>
+                        <td className="px-6 py-4 capitalize text-xs">{(inv.targetDimension || inv.dimensionTarget || inv.category || 'General').replace(/([A-Z])/g, ' $1').trim()}</td>
+                        <td className="px-6 py-4 text-right">
+                          <Badge variant="outline" className="font-mono text-[9px] bg-background">
+                            {(((inv.impact ?? inv.resilienceImpact ?? 0) / (inv.estimatedCost ?? inv.cost ?? 1)) * 10000).toFixed(1)} pt/₹10k
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -101,17 +110,17 @@ export default function InterventionLabPage() {
                 <div className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-4">Inspection Panel</div>
                 
                 <h3 className="text-xl font-bold mb-2">{selected.name}</h3>
-                <Badge className="capitalize mb-6" variant="secondary">{selected.dimensionTarget.replace(/([A-Z])/g, ' $1').trim()}</Badge>
+                <Badge className="capitalize mb-6" variant="secondary">{(selected.targetDimension || selected.dimensionTarget || selected.category || 'General').replace(/([A-Z])/g, ' $1').trim()}</Badge>
 
                 <Card className="border-border/40 shadow-none bg-background mb-6">
                   <CardContent className="p-0 flex divide-x divide-border/20">
                     <div className="flex-1 p-4 text-center">
                       <div className="text-[10px] uppercase text-muted-foreground font-semibold mb-1 flex items-center justify-center gap-1"><Coins className="h-3 w-3" /> CAPEX</div>
-                      <div className="font-mono text-xl font-bold">₹{selected.cost.toLocaleString()}</div>
+                      <div className="font-mono text-xl font-bold">₹{(selected.estimatedCost ?? selected.cost ?? 0).toLocaleString()}</div>
                     </div>
                     <div className="flex-1 p-4 text-center bg-primary/5">
                       <div className="text-[10px] uppercase text-primary font-semibold mb-1 flex items-center justify-center gap-1"><Activity className="h-3 w-3" /> IMPACT</div>
-                      <div className="text-xl font-bold text-primary">+{selected.resilienceImpact} pts</div>
+                      <div className="text-xl font-bold text-primary">+{(selected.impact ?? selected.resilienceImpact ?? 0)} pts</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -127,7 +136,7 @@ export default function InterventionLabPage() {
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">Significantly improves the {selected.dimensionTarget.replace(/([A-Z])/g, ' $1').trim().toLowerCase()} sub-score in the resilience engine.</span>
+                        <span className="text-muted-foreground">Significantly improves the {(selected.targetDimension || selected.dimensionTarget || selected.category || 'resilience').replace(/([A-Z])/g, ' $1').trim().toLowerCase()} sub-score in the resilience engine.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />

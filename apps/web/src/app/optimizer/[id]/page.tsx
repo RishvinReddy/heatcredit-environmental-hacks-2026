@@ -7,6 +7,8 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, Loader2, ArrowRight, Activity, Cpu, HelpCircle, Layers } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from "recharts";
+import { motion } from "framer-motion";
+import { AnimatedNumber, staggerListVariants, fadeUpItemVariants } from "@/lib/motion";
 
 export default function OptimizerPage() {
   return (
@@ -117,20 +119,37 @@ function OptimizerContent() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-muted/10 border border-border/40 p-4 rounded-xl text-center">
                 <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Current Score</div>
-                <div className="text-3xl font-bold font-mono">{assessment.score}</div>
+                <div className="text-3xl font-bold font-mono">
+                  <AnimatedNumber value={assessment.score} />
+                </div>
               </div>
               <div className="bg-primary/5 border border-primary/20 p-4 rounded-xl text-center">
                 <div className="text-[10px] uppercase font-bold text-primary mb-1">Projected</div>
-                <div className="text-3xl font-bold font-mono text-primary">{optData?.projectedScore || assessment.score}</div>
-                <div className="text-xs text-primary font-bold mt-1">+{improvement} pts</div>
+                <div className="text-3xl font-bold font-mono text-primary">
+                  <AnimatedNumber value={optData?.projectedScore || assessment.score} />
+                </div>
+                <div className="text-xs text-primary font-bold mt-1">
+                  +<AnimatedNumber value={improvement} /> pts
+                </div>
               </div>
               <div className="bg-background border border-border/40 p-4 rounded-xl text-center">
                 <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Capital Used</div>
-                <div className="text-lg font-bold font-mono">₹{optData?.totalCost?.toLocaleString() || 0}</div>
+                <div className="text-lg font-bold font-mono">
+                  <AnimatedNumber value={optData?.totalCost || 0} prefix="₹" formatLocale />
+                </div>
               </div>
               <div className="bg-background border border-border/40 p-4 rounded-xl text-center">
                 <div className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Efficiency</div>
-                <div className="text-lg font-bold font-mono">₹{efficiency}<span className="text-[10px] font-sans text-muted-foreground">/pt</span></div>
+                <div className="text-lg font-bold font-mono">
+                  {efficiency !== "N/A" ? (
+                    <>
+                      <AnimatedNumber value={Number(efficiency)} prefix="₹" formatLocale />
+                      <span className="text-[10px] font-sans text-muted-foreground">/pt</span>
+                    </>
+                  ) : (
+                    "N/A"
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -191,34 +210,47 @@ function OptimizerContent() {
             {loading && !optData ? (
               <div className="font-mono text-sm animate-pulse text-muted-foreground">OPTIMIZING...</div>
             ) : (
-              <div className="space-y-3">
+              <motion.div
+                variants={staggerListVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-3"
+              >
                 {(optData?.selectedInterventions || optData?.interventions || [])?.map((inv: any, i: number) => (
-                  <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-background border border-border/40 rounded-xl shadow-sm gap-4">
+                  <motion.div
+                    key={i}
+                    variants={fadeUpItemVariants}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-background border border-border/40 hover:border-primary/30 rounded-xl shadow-xs transition-colors gap-4"
+                  >
                     <div className="flex items-center gap-3">
-                      <ShieldCheck className="h-5 w-5 text-primary" />
+                      <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
                       <div>
-                        <div className="font-bold text-sm">{inv.name}</div>
+                        <div className="font-bold text-sm text-foreground">{inv.name}</div>
                         <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{(inv.targetDimension || inv.dimensionTarget || inv.category || 'General').replace(/([A-Z])/g, ' $1').trim()}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-6 sm:text-right">
                       <div>
                         <div className="text-[10px] uppercase text-muted-foreground font-bold">CAPEX</div>
-                        <div className="font-mono font-medium">₹{(inv.estimatedCost ?? inv.cost ?? 0).toLocaleString()}</div>
+                        <div className="font-mono font-medium">
+                          <AnimatedNumber value={inv.estimatedCost ?? inv.cost ?? 0} prefix="₹" formatLocale />
+                        </div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase text-primary font-bold">IMPACT</div>
-                        <div className="font-bold text-primary">+{(inv.impact ?? inv.resilienceImpact ?? 0)}</div>
+                        <div className="font-bold text-primary">
+                          <AnimatedNumber value={inv.impact ?? inv.resilienceImpact ?? 0} prefix="+" suffix=" pts" />
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
                 {((optData?.selectedInterventions || optData?.interventions)?.length === 0 || optData?.feasible === false) && (
                   <div className="p-8 text-center bg-background border border-border/40 rounded-xl font-mono text-sm text-muted-foreground">
                     {optData?.message || "No viable interventions found under this constraint."}
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
           </div>
         </div>

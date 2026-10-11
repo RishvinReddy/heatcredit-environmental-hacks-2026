@@ -9,6 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --font-handwriting: var(--font-handwriting);
   
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -79,4 +80,8 @@
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
   }
+}
+
+@utility font-handwriting {
+  font-family: var(--font-handwriting), "Caveat", cursive, sans-serif;
 }
